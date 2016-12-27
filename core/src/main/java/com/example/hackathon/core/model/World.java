@@ -3,10 +3,12 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class World {
@@ -16,6 +18,8 @@ public class World {
 	private Player player = new Player();
 
 	public static final float INTERACTION_RADIUS = 1;
+	Integer[] CLICK_BUTTON_ON_TILE_IDS = {33,34,55,56};
+	Integer[] CLICK_BUTTON_OFF_TILE_IDS = {35,36,57,58};
 
 	private static boolean isWalkable(int cellType) {
 		return cellType == 2;
@@ -129,5 +133,30 @@ public class World {
 
 	public void addIntercationElement(InteractionElement ie) {
 		interactionElements.add(ie);
+	}
+
+	public void findInteractionElements() {
+		// find ClickButtons and add them to the InteractionElements
+		List<TiledMapTile> clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
+		List<TiledMapTile> clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
+
+		int width = ((TiledMapTileLayer) map.getLayers().get(0)).getWidth();
+		int height = ((TiledMapTileLayer) map.getLayers().get(0)).getHeight();
+
+		for (int x = 0; x < width; i++) {
+			for (int y = 0; y < height; y++) {
+				if (Arrays.asList(CLICK_BUTTON_OFF_TILE_IDS).contains(getCellTileId(x,y))) {
+					// add Button to matching location (and look, that it is not added multiple times (only on upper left tile?)
+				}
+			}
+		}
+	}
+
+	public List<TiledMapTile> getTilesByIds(int[] ids) {
+		List<TiledMapTile> back = new ArrayList<>();
+		for (int i : ids) {
+			back.add(map.getTileSets().getTile(i));
+		}
+		return back;
 	}
 }
