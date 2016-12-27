@@ -17,7 +17,7 @@ public class World {
 
 	public static final float INTERACTION_RADIUS = 1;
 
-	public static boolean isWalkable(int cellType) {
+	private static boolean isWalkable(int cellType) {
 		return cellType == 2;
 	}
 
@@ -52,25 +52,68 @@ public class World {
 		for (Robot r : robots) {
 			Vector2 diff = r.getVelocity().cpy().scl(deltaTime);
 			// Test for collisions in the newly occupied cells
-			// Test if the x coordinate overlaps somewhere in the height of the robot
+			// X coordinate
 			if (diff.x != 0) {
 				// The current tile coordinate
 				int cur;
 				// The next coordinate
 				int next;
-
-				int xDiff = diff.x < 0 ? -1 : 1;
-				int x = xDiff + (int) r.getLocation().x;
-				int y = (int) r.getLocation().y;
-				for (int i = 0; i < Math.ceil(r.getSize().y); i++) {
-					if (!isWalkable(getCellTileId(x, y + i))) {
-						// Set the x coordinate to the border because we have a collision
-						diff.x = xDiff == 1 ? (float) Math.floor(diff.x) : 0;
-						break;
+				// The step to go from cur to next
+				int step;
+				if (diff.x < 0) {
+					cur = (int) r.getLocation().x;
+					next = (int) (r.getLocation().x + diff.x);
+					step = -1;
+				} else {
+					cur = (int) (r.getLocation().x + r.getSize().x);
+					next = (int) (r.getLocation().x + r.getSize().x + diff.x);
+					step = 1;
+				}
+			outer:
+				for (int i = cur; i != next; i += step) {
+					// Test if this x coordinate overlaps somewhere in the height of the robot
+					int maxJ = (int) Math.ceil(r.getLocation().y + r.getSize().y);
+					for (int j = (int) r.getLocation().y; j < maxJ; j++) {
+						if (!isWalkable(getCellTileId(i, j))) {
+							// Set the coordinate to the border one step backwards
+							// because we have a collision.
+							diff.x = i - step - r.getLocation().x;
+							break outer;
+						}
 					}
 				}
 			}
-			int yDiff = diff.y < 0 ? -1 : (diff.y > 0 ? 1 : 0);
+			// Y coordinate
+			if (diff.y != 0) {
+				// The current tile coordinate
+				int cur;
+				// The next coordinate
+				int next;
+				// The step to go from cur to next
+				int step;
+				if (diff.y < 0) {
+					cur = (int) r.getLocation().y;
+					next = (int) (r.getLocation().y + diff.y);
+					step = -1;
+				} else {
+					cur = (int) (r.getLocation().y + r.getSize().y);
+					next = (int) (r.getLocation().y + r.getSize().y + diff.y);
+					step = 1;
+				}
+				outer:
+				for (int i = cur; i != next; i += step) {
+					// Test if this y coordinate overlaps somewhere in the height of the robot
+					int maxJ = (int) Math.ceil(r.getLocation().x + r.getSize().x);
+					for (int j = (int) r.getLocation().x; j < maxJ; j++) {
+						if (!isWalkable(getCellTileId(j, i))) {
+							// Set the coordinate to the border one step backwards
+							// because we have a collision.
+							diff.y = i - step - r.getLocation().y;
+							break outer;
+						}
+					}
+				}
+			}
 			r.getLocation().add(diff);
 		}
 	}
