@@ -1,24 +1,22 @@
 package com.example.hackathon.core;
 
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+
 import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
@@ -26,15 +24,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import com.example.hackathon.core.model.Player;
-
+import com.example.hackathon.core.model.World;
 
 public class HackathonGame implements ApplicationListener, InputProcessor {
 	private SpriteBatch batch;
-	private TiledMap map;
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
-	private Player player;
+
+	private World world;
 
 	private Vector2 camera_pos;
 
@@ -57,6 +55,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 		camera.unproject(pos);
 		// Camera - Player
+		Player player = world.getPlayer();
 		Vector2 diff = player.getLocation().sub(pos.x, pos.y);
 		if (diff.len2() < 1)
 			diff.nor();
@@ -65,14 +64,14 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	private void updateMovement(float deltaTime) {
 		// TODO Compute movement for all robots
-		Vector2 displacement = player.getVelocity().cpy().scl(deltaTime);
+		Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
 		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
 		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
 				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
 				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
 			camera.translate(displacement);
 		}
-		player.getLocation().add(displacement);
+		world.getPlayer().getLocation().add(displacement);
 	}
 
 	@Override
@@ -80,18 +79,15 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 
-		player = new Player();
 		movementSetByMouse = true;
 
 		camera = new OrthographicCamera();
 
 		TmxMapLoader loader = new TmxMapLoader();
-		map = loader.load("test.tmx");
-		MapLayer meta_layer = map.getLayers().get("meta");
-		MapObject player_start = meta_layer.getObjects().get("player-start");
+		TiledMap map = loader.load("test.tmx");
 
-		camera_pos = new Vector2(player_start.getProperties().get("x", Float.class), player_start.getProperties().get("y", Float.class));
-		player.setLocation(camera_pos);
+		world = new World(map);
+		camera.translate(world.getPlayer().getLocation());
 
 		map_renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
 	}
@@ -109,7 +105,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		updateMouseInput();
 
 		// Update logic
-		updateMovement(deltaTime);
+		world.updateMovement(deltaTime);
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -127,7 +123,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void pause () {
-
 	}
 
 	@Override
@@ -137,7 +132,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void dispose () {
-		map.dispose();
+		world.getMap().dispose();
 	}
 
 	@Override
@@ -153,7 +148,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			m = Vector2.X;
 
 		if (m != Vector2.Zero) {
-			player.setVelocity(m);
+			world.getPlayer().setVelocity(m);
 			movementSetByMouse = false;
 		}
 		return false;
@@ -165,7 +160,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			keycode == Input.Keys.S ||
 			keycode == Input.Keys.A ||
 			keycode == Input.Keys.D) {
-			player.setVelocity(Vector2.Zero);
+			world.getPlayer().setVelocity(Vector2.Zero);
 			// Let the mouse control the player again
 			movementSetByMouse = true;
 		}

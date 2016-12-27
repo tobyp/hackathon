@@ -6,7 +6,11 @@ import com.badlogic.gdx.math.Vector2;
  * Base class for the players robot and enemy robots
  */
 public class Robot {
+	/**
+	 * The coordinates of the center of the robot.
+	 */
 	private Vector2 location = Vector2.Zero;
+	private Vector2 size = new Vector2(1, 1);
 
     /**
      * The normalized direction in that the robot is looking.
@@ -31,15 +35,23 @@ public class Robot {
         direction = v;
     }
 
-    public void setVelocity(Vector2 v) {
-        velocity = v;
-        if (v.len2() > 0.1)
-            direction = v.nor();
+    public Vector2 getSize() {
+    	return size;
+    }
+
+    public void setSize(Vector2 v) {
+    	size = v;
     }
 
     public Vector2 getVelocity() {
         return velocity;
     }
+
+	public void setVelocity(Vector2 v) {
+		velocity = v;
+		if (v.len2() > 0.1)
+			direction = v.nor();
+	}
 
     public Vector2 getLocation() {
         return location;
