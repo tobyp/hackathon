@@ -7,11 +7,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="hackathon-core" />
+        <module name="hackathon-desktop" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
       <module name="hackathon" target="1.8" />
       <module name="hackathon-core" target="1.8" />
+      <module name="hackathon-desktop" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

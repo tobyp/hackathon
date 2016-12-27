@@ -1,31 +1,44 @@
 package com.example.hackathon.core;
 
+import java.util.logging.Logger;
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.maps.Map;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+
 import com.example.hackathon.core.model.Player;
 
+
 public class HackathonGame implements ApplicationListener, InputProcessor {
-	private Texture texture;
 	private SpriteBatch batch;
-	private float elapsed;
+	private TiledMap map;
+	private TiledMapRenderer map_renderer;
+	private OrthographicCamera camera;
+	private BitmapFont font;
 	private Player player;
+
 	/**
 	 * If the player movement can be set by a mouse movement.
 	 * false if it is set by the keyboard.
 	 * The mouse will only set the movement if this variable is set to true.
 	 */
 	private boolean movementSetByMouse;
-	private Camera camera = new OrthographicCamera();
 
 	/**
 	 * Update the movement by the mouse depending on the player position.
@@ -49,20 +62,28 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void create () {
-		texture = new Texture(Gdx.files.internal("libgdx-logo.png"));
+		font = new BitmapFont();
 		batch = new SpriteBatch();
+
+		camera = new OrthographicCamera();
+
+		TmxMapLoader loader = new TmxMapLoader();
+		map = loader.load("test.tmx");
+
+		map_renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
+
 		player = new Player();
 		movementSetByMouse = true;
 	}
 
 	@Override
 	public void resize (int width, int height) {
+		camera.setToOrtho(false, (float)width / height * 10, 10);
 	}
 
 	@Override
 	public void render () {
 		float deltaTime = Gdx.graphics.getDeltaTime();
-		elapsed += deltaTime;
 
 		// Update input
 		updateMouseInput();
@@ -73,13 +94,20 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+
+		camera.update();
+
+		map_renderer.setView(camera);
+		map_renderer.render();
+
 		batch.begin();
-		batch.draw(texture, 100+100*(float)Math.cos(elapsed), 100+25*(float)Math.sin(elapsed));
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
 	}
 
 	@Override
 	public void pause () {
+
 	}
 
 	@Override
@@ -89,6 +117,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void dispose () {
+		map.dispose();
 	}
 
 	@Override
