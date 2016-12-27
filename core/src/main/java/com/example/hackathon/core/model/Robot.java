@@ -7,10 +7,10 @@ import com.badlogic.gdx.math.Vector2;
  * Base class for the players robot and enemy robots
  */
 public class Robot {
-    public Vector2 location;
+	public Vector2 location;
 
     public void moveTowards(Vector2 goal, int distance)
-    {
-        // TODO Distance as int or float or absolute location?
-    }
+	{
+    	// TODO Distance as int or float or absolute location?
+	}
 }
