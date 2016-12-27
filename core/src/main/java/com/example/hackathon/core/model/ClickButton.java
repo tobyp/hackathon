@@ -1,13 +1,13 @@
 package com.example.hackathon.core.model;
 
-/**
- * Created by Laci on 27.12.16.
- */
+import com.badlogic.gdx.math.Vector2;
+
 public class ClickButton extends InteractionElement{
 	public boolean isActivated;
 
-    public ClickButton(boolean initState) {
+    public ClickButton(Vector2 loc, boolean initState) {
     	isActivated = initState;
+		location = loc;
     }
 
     @Override

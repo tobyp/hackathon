@@ -3,11 +3,10 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * Created by Laci on 27.12.16.
  * Base class for the players robot and enemy robots
  */
 public class Robot {
-	public Vector2 location;
+	private Vector2 location;
     private Movement movement;
 
     public Movement getMovement() {
