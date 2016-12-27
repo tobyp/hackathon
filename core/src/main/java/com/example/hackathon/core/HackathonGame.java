@@ -21,7 +21,6 @@ import com.example.hackathon.core.model.World;
 
 public class HackathonGame implements ApplicationListener, InputProcessor {
 	private SpriteBatch batch;
-	private TiledMap map;
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
@@ -51,12 +50,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		player.setVelocity(diff);
 	}
 
-	private void updateMovement(float deltaTime) {
-		// TODO Compute movement for all robots
-		Player player = world.getPlayer();
-		player.getLocation().mulAdd(player.getVelocity(), deltaTime);
-	}
-
 	@Override
 	public void create () {
 		font = new BitmapFont();
@@ -65,11 +58,11 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		camera = new OrthographicCamera();
 
 		TmxMapLoader loader = new TmxMapLoader();
-		map = loader.load("test.tmx");
+		TiledMap map = loader.load("test.tmx");
 
 		map_renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
 
-		world = new World();
+		world = new World(map);
 		movementSetByMouse = true;
 	}
 
@@ -86,7 +79,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		updateMouseInput();
 
 		// Update logic
-		updateMovement(deltaTime);
+		world.updateMovement(deltaTime);
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -104,7 +97,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void pause () {
-
 	}
 
 	@Override
@@ -114,7 +106,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void dispose () {
-		map.dispose();
+		world.getMap().dispose();
 	}
 
 	@Override
