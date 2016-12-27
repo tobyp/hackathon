@@ -1,5 +1,6 @@
 package com.example.hackathon.core;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import com.badlogic.gdx.Input;
@@ -13,6 +14,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.Map;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -32,6 +35,11 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private OrthographicCamera camera;
 	private BitmapFont font;
 	private Player player;
+
+	private Vector2 camera_pos;
+
+	private final float TILES_PER_SCREEN_Y = 10f;
+	private final float CAMERA_MOVE_MARGIN = 0.05f;
 
 	/**
 	 * If the player movement can be set by a mouse movement.
@@ -57,7 +65,14 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	private void updateMovement(float deltaTime) {
 		// TODO Compute movement for all robots
-		player.getLocation().mulAdd(player.getVelocity(), deltaTime);
+		Vector2 displacement = player.getVelocity().cpy().scl(deltaTime);
+		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
+		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
+				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
+				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
+			camera.translate(displacement);
+		}
+		player.getLocation().add(displacement);
 	}
 
 	@Override
@@ -65,20 +80,25 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 
+		player = new Player();
+		movementSetByMouse = true;
+
 		camera = new OrthographicCamera();
 
 		TmxMapLoader loader = new TmxMapLoader();
 		map = loader.load("test.tmx");
+		MapLayer meta_layer = map.getLayers().get("meta");
+		MapObject player_start = meta_layer.getObjects().get("player-start");
+
+		camera_pos = new Vector2(player_start.getProperties().get("x", Float.class), player_start.getProperties().get("y", Float.class));
+		player.setLocation(camera_pos);
 
 		map_renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
-
-		player = new Player();
-		movementSetByMouse = true;
 	}
 
 	@Override
 	public void resize (int width, int height) {
-		camera.setToOrtho(false, (float)width / height * 10, 10);
+		camera.setToOrtho(false, (float)width / height * TILES_PER_SCREEN_Y, TILES_PER_SCREEN_Y);
 	}
 
 	@Override
