@@ -8,6 +8,15 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Robot {
 	public Vector2 location;
+    private Movement movement;
+
+    public Movement getMovement() {
+        return movement;
+    }
+
+    public void setMovement(Movement m) {
+        movement = m;
+    }
 
     public void moveTowards(Vector2 goal, int distance)
 	{
