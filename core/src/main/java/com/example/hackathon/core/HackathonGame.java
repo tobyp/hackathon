@@ -1,21 +1,15 @@
 package com.example.hackathon.core;
 
-import java.util.logging.Logger;
-
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
@@ -23,7 +17,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import com.example.hackathon.core.model.Player;
-
+import com.example.hackathon.core.model.World;
 
 public class HackathonGame implements ApplicationListener, InputProcessor {
 	private SpriteBatch batch;
@@ -31,7 +25,8 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
-	private Player player;
+
+	private World world;
 
 	/**
 	 * If the player movement can be set by a mouse movement.
@@ -49,6 +44,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 		camera.unproject(pos);
 		// Camera - Player
+		Player player = world.getPlayer();
 		Vector2 diff = player.getLocation().sub(pos.x, pos.y);
 		if (diff.len2() < 1)
 			diff.nor();
@@ -57,6 +53,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	private void updateMovement(float deltaTime) {
 		// TODO Compute movement for all robots
+		Player player = world.getPlayer();
 		player.getLocation().mulAdd(player.getVelocity(), deltaTime);
 	}
 
@@ -72,7 +69,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		map_renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
 
-		player = new Player();
+		world = new World();
 		movementSetByMouse = true;
 	}
 
@@ -133,7 +130,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			m = Vector2.X;
 
 		if (m != Vector2.Zero) {
-			player.setVelocity(m);
+			world.getPlayer().setVelocity(m);
 			movementSetByMouse = false;
 		}
 		return false;
@@ -145,7 +142,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			keycode == Input.Keys.S ||
 			keycode == Input.Keys.A ||
 			keycode == Input.Keys.D) {
-			player.setVelocity(Vector2.Zero);
+			world.getPlayer().setVelocity(Vector2.Zero);
 			// Let the mouse control the player again
 			movementSetByMouse = true;
 		}

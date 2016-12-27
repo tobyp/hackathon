@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class World {
-	private List<InteractionElement> interactionElements;
+	private List<InteractionElement> interactionElements = new ArrayList<>();
 
-	private Player player;
+	private Player player = new Player();
 
 	public static final float INTERACTION_RADIUS = 1;
 
 	public World() {
-		interactionElements = new ArrayList<InteractionElement>();
-		player = new Player();
+	}
+
+	public Player getPlayer() {
+		return player;
 	}
 
 	// checks, if there are any interactionElements close to the player & calls the respective interact methods
