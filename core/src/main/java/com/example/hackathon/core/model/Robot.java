@@ -7,19 +7,46 @@ import com.badlogic.gdx.math.Vector2;
  * Base class for the players robot and enemy robots
  */
 public class Robot {
-	public Vector2 location;
-    private Movement movement;
+	public Vector2 location = Vector2.Zero;
 
-    public Movement getMovement() {
-        return movement;
+    /**
+     * The normalized direction in that the robot is looking.
+     */
+    private Vector2 direction = Vector2.Y;
+    private Vector2 velocity = Vector2.Zero;
+
+    public Movement getDiscreteDirection() {
+        if (Math.abs(direction.x) > Math.abs(direction.y)) {
+            if (direction.x < 0)
+                return Movement.Left;
+            return Movement.Right;
+        } else {
+            if (direction.y < 0)
+                return Movement.Left;
+            return Movement.Right;
+
+        }
     }
 
-    public void setMovement(Movement m) {
-        movement = m;
+    public void setDirection(Vector2 v) {
+        direction = v;
     }
 
-    public void moveTowards(Vector2 goal, int distance)
-	{
-    	// TODO Distance as int or float or absolute location?
+    public void setVelocity(Vector2 v) {
+        velocity = v;
+        if (v.len2() > 0.1)
+            direction = v.nor();
+    }
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
+    public Vector2 getLocation() {
+        return location;
+    }
+
+    public void setLocation(Vector2 v) {
+        location = v;
 	}
 }
