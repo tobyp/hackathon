@@ -15,7 +15,7 @@ public class DynamicEntity extends Entity {
     /**
      * The normalized direction in that the robot is looking.
      */
-    private Vector2 direction = Vector2.Y;
+    protected Vector2 direction = Vector2.Y;
 
     public DynamicEntity(Sprite sprite) {
     	this.sprite = sprite;
@@ -32,8 +32,8 @@ public class DynamicEntity extends Entity {
             return Movement.Right;
         } else {
             if (direction.y < 0)
-                return Movement.Left;
-            return Movement.Right;
+                return Movement.Down;
+            return Movement.Up;
 
         }
     }
@@ -44,8 +44,8 @@ public class DynamicEntity extends Entity {
 
     public void setVelocity(Vector2 v) {
 		velocity = v;
-		if (v.len2() > 0.1)
-			direction = v.nor();
+		if (v.len2() > 0.01)
+			setDirection(v.nor());
 	}
 
     public Vector2 getVelocity() {

@@ -1,6 +1,7 @@
 package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 
@@ -25,7 +26,7 @@ public class Player extends DynamicEntity {
 		battery = batteryMax;
 		consumption = 0.0f;
 		upgrades = new ArrayList<>();
-		velocity = new Vector2(-0.5f,-0.5f);
+		size = new Vector2(2, 2);
 	}
 
 	public void addUpgrade(Upgrade u) {
@@ -76,12 +77,20 @@ public class Player extends DynamicEntity {
 	}
 
 	@Override
+	public void setDirection(Vector2 v) {
+		super.setDirection(v);
+		// Change the sprite
+		sprite.setRegionX(getDiscreteDirection().ordinal() * 128);
+		sprite.setRegionWidth(128);
+	}
+
+	@Override
 	public void update(World world, float deltaTime) {
 		battery -= consumption * deltaTime;
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}
-		velocity = target.sub(location).scl(0.2f);
+		setVelocity(target.sub(location).scl(0.3f));
 	}
 
 	@Override
