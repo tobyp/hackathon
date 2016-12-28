@@ -1,6 +1,5 @@
 package com.example.hackathon.core;
 
-import java.util.logging.Level;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
