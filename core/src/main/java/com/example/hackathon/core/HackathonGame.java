@@ -3,9 +3,7 @@ package com.example.hackathon.core;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -18,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import com.example.hackathon.core.model.DynamicEntity;
 import com.example.hackathon.core.model.Entity;
 import com.example.hackathon.core.model.World;
 
@@ -27,15 +26,13 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
-	private Texture tew_texture;
-	private Sprite tew_sprite;
 
 	private World world;
 
 	private Vector2 camera_pos;
 
-	private final float TILES_PER_SCREEN_Y = 10f;
-	private final float CAMERA_MOVE_MARGIN = 0.05f;
+	private static final float TILES_PER_SCREEN_Y = 10f;
+	private static final float CAMERA_MOVE_MARGIN = 0.05f;
 
 	public static boolean isGameOver = false;
 
@@ -46,9 +43,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		gameBatch = new SpriteBatch();
 
 		camera = new OrthographicCamera();
-
-		tew_texture = new Texture("tew.png");
-		tew_sprite = new Sprite(tew_texture, 128, 128);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -82,36 +76,21 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		camera.position.set(world.getPlayer().getLocation(), 0);
 		camera.update();
+		// Set render coordinates to world space
 		gameBatch.setTransformMatrix(camera.view);
 		gameBatch.setProjectionMatrix(camera.projection);
-		//Vector2 pl = world.getPlayer().getLocation();
-		//float width = (float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() * TILES_PER_SCREEN_Y;
-		//float height = TILES_PER_SCREEN_Y;
-		//gameBatch.getProjectionMatrix().setToOrtho2D(v2.x - width / 2, v2.y - height / 2, width, height);
 
 		map_renderer.setView(camera);
 		map_renderer.render();
 
 
+		// Render entities
 		gameBatch.begin();
 		for (Entity e : world.getEntities()) {
-			/*Vector3 p = new Vector3(e.getLocation(), 0);
-			// Manually center the texture
-			//tew_sprite.setPosition(p.x - tew_sprite.getWidth() / 2.0f, p.y - tew_sprite.getHeight() / 2.0f);
-			Matrix4 m = gameBatch.getProjectionMatrix().cpy().mul(gameBatch.getTransformMatrix());
-			//System.out.println("Before: " + p);
-			//System.out.println("2:      " + p.cpy().prj(camera.combined));
-			//p.mul(m);
-			//System.out.println("After:  " + p);
-			tew_sprite.setPosition(e.getLocation().x, e.getLocation().y);
-			//gameBatch.draw(tew_sprite, e.getLocation().x, e.getLocation().y, 2, 2);
-			tew_sprite.setSize(2, 2);
-			tew_sprite.draw(gameBatch);*/
-
-			Vector2 p = e.getSize().cpy().scl(-0.5f).add(e.getLocation());
-			tew_sprite.setPosition(p.x, p.y);
-			tew_sprite.setSize(e.getSize().x, e.getSize().y);
-			tew_sprite.draw(gameBatch);
+			if (e instanceof DynamicEntity) {
+				DynamicEntity de = (DynamicEntity) e;
+				de.render(gameBatch);
+			}
 		}
 		gameBatch.end();
 

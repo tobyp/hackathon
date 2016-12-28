@@ -1,5 +1,6 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 
@@ -19,10 +20,11 @@ public class Player extends DynamicEntity {
 	private List<Upgrade> upgrades;
 
 	public Player() {
+		super(new Texture("tew.png"), 0, 0, 128, 128);
 		batteryMax = 1.f;
 		battery = batteryMax;
 		consumption = 0.0f;
-		upgrades = new ArrayList<Upgrade>();
+		upgrades = new ArrayList<>();
 		velocity = new Vector2(-0.5f,-0.5f);
 	}
 

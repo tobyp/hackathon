@@ -1,6 +1,5 @@
 package com.example.hackathon.core.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -9,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  * Created by tobyp on 12/28/16.
  */
 public class Item extends Entity {
-    private final float BOUNCE_AMPLITUDE = 2.0f;
+    private static final float BOUNCE_AMPLITUDE = 2.0f;
     private float bounce_time = 0.f;
 
     private Sprite sprite;
