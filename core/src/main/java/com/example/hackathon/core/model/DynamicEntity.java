@@ -38,4 +38,9 @@ public class DynamicEntity extends Entity {
     public Vector2 getVelocity() {
         return velocity;
     }
+
+	@Override
+	public void collide(World world, Entity entity) {
+
+	}
 }

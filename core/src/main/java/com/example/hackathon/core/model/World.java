@@ -6,19 +6,21 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
+import com.example.hackathon.core.HackathonGame;
+import com.example.hackathon.core.ScriptCommand;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public class World {
-	private List<InteractionElement> interactionElements = new ArrayList<>();
-
 	private TiledMap map;
 	private Player player;
 	private TiledMapTileLayer walk_layer;
+	private MapLayer meta_layer;
 
 	private List<Entity> entities;
 
@@ -32,16 +34,16 @@ public class World {
 
 	public World(TiledMap map) {
 		this.map = map;
-		MapLayer meta_layer = map.getLayers().get("meta");
-		MapObject player_start = meta_layer.getObjects().get("player-start");
+		meta_layer = map.getLayers().get("meta");
 		walk_layer = (TiledMapTileLayer)map.getLayers().get("walk");
 
 		this.player = new Player();
+		MapObject player_start = meta_layer.getObjects().get("player-start");
 		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth(), player_start.getProperties().get("y", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth()));
 
 		this.entities = new ArrayList<>();
 		entities.add(player);
-		findInteractionElements();
+		findEntitys();
 	}
 
 	public TiledMap getMap() {
@@ -129,24 +131,20 @@ public class World {
 			}
 			e_.update(deltaTime);
 		}
-		checkForInteraction();
-		interactionElements.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
+
+		entities.stream().filter(
+				(Entity e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
+				.forEach((Entity e) -> e.collide(this, player));
+
+		entities.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
 	}
 
-	/**
-	 * Checks, if there are any interactionElements close to the player & calls the respective interact methods.
- 	 */
-	public void checkForInteraction() {
-		interactionElements.stream().filter(
-			(InteractionElement e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
-			.forEach(InteractionElement::interact);
+
+	public void addEntity(Entity e) {
+		entities.add(e);
 	}
 
-	public void addIntercationElement(InteractionElement ie) {
-		interactionElements.add(ie);
-	}
-
-	public void findInteractionElements() {
+	public void findEntitys() {
 		// find ClickButtons and add them to the InteractionElements
 		List<TiledMapTile> clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		List<TiledMapTile> clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
@@ -161,13 +159,13 @@ public class World {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
 							true, clickButtonOnTiles, clickButtonOffTiles, cells);
-					addIntercationElement(cb);
+					addEntity(cb);
 					Logger.getAnonymousLogger().info("!!!!!!!!!!! on button set !!!!!!!!!!!!");
 				} else if (CLICK_BUTTON_OFF_TILE_IDS[0] == getCellTileId(x,y)) {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
 							false, clickButtonOnTiles, clickButtonOffTiles, cells);
-					addIntercationElement(cb);
+					addEntity(cb);
 					Logger.getAnonymousLogger().info("!!!!!!!!!!! off button set !!!!!!!!!!!!");
 				}
 			}
@@ -191,5 +189,80 @@ public class World {
 			}
 		}
 		return back;
+	}
+
+	public void removeEntity(Entity entity) {
+		if (entity == player) {
+			HackathonGame.isGameOver = true;
+		}
+		this.entities.remove(entity);
+	}
+
+	private static final Map<String, Method> script_methods = new HashMap<>();
+
+	static {
+		for (Method m : World.class.getMethods()) {
+			ScriptCommand sca = m.getDeclaredAnnotation(ScriptCommand.class);
+			if (sca != null) {
+				script_methods.put(m.getName(), m);
+			}
+		}
+	}
+
+	public void runScript(String script) {
+		Logger logger = Logger.getLogger("script");
+		String[] lines = script.split(";");
+		for (String line : lines) {
+			String[] cmd_args = line.split(" ", 1);
+			Method m = script_methods.getOrDefault(cmd_args[0], null);
+			if (m == null) {
+				logger.severe("Unknown command " + cmd_args[0]);
+				return;
+			}
+
+			String[] param_strings;
+			if (cmd_args.length > 1) {
+				param_strings = cmd_args[1].split(" ");
+			}
+			else {
+				param_strings = new String[0];
+			}
+
+			if (cmd_args.length != m.getParameterCount()) {
+				logger.severe("Command " + cmd_args[0] + " requires " + m.getParameterCount() + " parameters.");
+				return;
+			}
+
+			Object[] params = new Object[m.getParameterCount()];
+			Class<?>[] param_types = m.getParameterTypes();
+			for (int i=0; i<m.getParameterCount(); ++i) {
+				Class<?> c = param_types[i];
+				String p = param_strings[i];
+				if (c == Float.class) {
+					params[i] = Float.parseFloat(p);
+				}
+				else if (c == Integer.class) {
+					params[i] = Integer.parseInt(p);
+				}
+				else if (c == String.class) {
+					params[i] = p;
+				}
+				else {
+					logger.severe("Unsupported argument type " + c.toString());
+					return;
+				}
+			}
+
+			try {
+				m.invoke(this, params);
+			} catch (Exception e) {
+				Logger.getLogger("script").severe("Script failed");
+			}
+		}
+	}
+
+	@ScriptCommand
+	public void teleport(int x, int y) {
+		player.setLocation(new Vector2(x, y));
 	}
 }

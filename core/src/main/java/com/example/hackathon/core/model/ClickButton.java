@@ -20,10 +20,19 @@ public class ClickButton extends ButtonElement {
 		this.onTiles = onTiles;
 		this.offTiles = offTiles;
 		this.coveredCells = coveredCells;
+		this.cooldown = 0;
     }
 
-    @Override
-	public void interact() {
-    	isActivated = !isActivated;
-    }
+	@Override
+	public void update(float deltaTime) {
+		cooldown--;
+	}
+
+	@Override
+	public void collide(World world, Entity entity) {
+    	if (cooldown <= 0) {
+			isActivated = !isActivated;
+			cooldown = 10;
+		}
+	}
 }

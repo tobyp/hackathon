@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ButtonElement extends InteractionElement {
+public abstract class ButtonElement extends Entity {
 	public List<TiledMapTile> onTiles;
-
+	public List<TiledMapTileLayer.Cell> coveredCells;
 	public List<TiledMapTile> offTiles;
 
 	public boolean isActivated;
+
+	protected int cooldown;
 
 	public void updateTiles() {
 		if (isActivated) {

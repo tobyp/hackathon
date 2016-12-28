@@ -24,7 +24,12 @@ public class Item extends Entity {
         super.update(deltaTime);
     }
 
-    public void render(SpriteBatch batch) {
+	@Override
+	public void collide(World world, Entity entity) {
+		
+	}
+
+	public void render(SpriteBatch batch) {
         float bounce_offset = BOUNCE_AMPLITUDE * (float)Math.sin(bounce_time);
         sprite.translateY(bounce_offset);
         sprite.draw(batch);
