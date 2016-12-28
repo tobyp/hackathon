@@ -82,6 +82,7 @@ public class World {
 		for (Entity e_ : entities) {
 			if (e_ instanceof DynamicEntity) {
 				DynamicEntity e = (DynamicEntity)e_;
+				Vector2 collidedWith = null;
 
 				// Compute the movement for all entities
 				Vector2 diff = e.getVelocity().cpy().scl(deltaTime);
@@ -101,6 +102,7 @@ public class World {
 						for (int j = (int) (e.getLocation().y - e.getSize().y / 2); j < maxJ; j++) {
 							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(i, j)) {
+								collidedWith = new Vector2(i, j);
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
 								diff.x = i - (step - 1) / 2 - e.getLocation().x - step * e.getSize().x / 2;
@@ -127,6 +129,7 @@ public class World {
 						for (int j = (int) (e.getLocation().x - e.getSize().x / 2); j < maxJ; j++) {
 							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(j, i)) {
+								collidedWith = new Vector2(j, i);
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
 								diff.y = i - (step - 1) / 2 - (e.getLocation().y + step * e.getSize().y / 2);
@@ -137,6 +140,8 @@ public class World {
 					}
 					e.getLocation().y += diff.y;
 				}
+				if (collidedWith != null)
+					e.collide(this, collidedWith);
 			}
 			e_.update(this, deltaTime);
 		}

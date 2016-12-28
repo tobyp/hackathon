@@ -45,7 +45,7 @@ public class DynamicEntity extends Entity {
     public void setVelocity(Vector2 v) {
 		velocity = v;
 		if (v.len2() > 0.01)
-			setDirection(v.nor());
+			setDirection(v.cpy().nor());
 	}
 
     public Vector2 getVelocity() {
@@ -56,6 +56,8 @@ public class DynamicEntity extends Entity {
 	public void collide(World world, Entity entity) {
 
 	}
+
+	public void collide(World world, Vector2 pos) { }
 
 	public void render(SpriteBatch batch) {
 		Vector2 p = size.cpy().scl(-0.5f).add(location);
