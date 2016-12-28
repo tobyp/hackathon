@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClickButton extends ButtonElement{
+public class ClickButton extends ButtonElement {
 
     public ClickButton(Vector2 loc, boolean initState, List<TiledMapTile> onTiles,
 					   List<TiledMapTile> offTiles, List<TiledMapTileLayer.Cell> coveredCells) {

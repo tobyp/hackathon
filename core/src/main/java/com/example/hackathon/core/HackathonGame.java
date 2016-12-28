@@ -58,24 +58,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			return;
 		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 		camera.unproject(pos);
-		// Camera - Player
-		Player player = world.getPlayer();
-		Vector2 diff = player.getLocation().sub(pos.x, pos.y);
-		if (diff.len2() < 1)
-			diff.nor();
-		player.setVelocity(diff);
-	}
-
-	private void updateMovement(float deltaTime) {
-		// TODO Compute movement for all robots
-		Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
-		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
-		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
-				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
-				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
-			camera.translate(displacement);
-		}
-		world.getPlayer().getVelocity().add(displacement);
+		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
 	}
 
 	@Override
@@ -88,7 +71,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		camera = new OrthographicCamera();
 
 		tew_texture = new Texture("tew.png");
-		tew_sprite = new Sprite(tew_texture, 64, 64);
+		tew_sprite = new Sprite(tew_texture, 128, 128);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -112,19 +95,29 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		updateMouseInput();
 
 		// Update logic
-		//world.updateMovement(deltaTime);
-		updateMovement(deltaTime);
+		world.update(deltaTime);
+
+		/*Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
+		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
+		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
+				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
+				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
+			camera.translate(displacement);
+		}*/
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
+		camera.position.set(world.getPlayer().getLocation(), 0);
 		camera.update();
 
 		map_renderer.setView(camera);
 		map_renderer.render();
 
-		tew_sprite.setPosition(world.getPlayer().getLocation().x, world.getPlayer().getLocation().y);
+		Vector3 p = new Vector3(world.getPlayer().getLocation(), 0);
+		camera.project(p);
+		tew_sprite.setPosition(p.x, p.y);
 
 		batch.begin();
 		tew_sprite.draw(batch);
@@ -161,6 +154,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		if (m != Vector2.Zero) {
 			world.getPlayer().setVelocity(m);
+			world.getPlayer().setTarget(null);
 			movementSetByMouse = false;
 		}
 		return false;
@@ -201,6 +195,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
+		updateMouseInput();
 		return false;
 	}
 

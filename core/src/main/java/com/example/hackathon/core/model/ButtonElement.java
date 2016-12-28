@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ButtonElement extends InteractionElement{
+public abstract class ButtonElement extends InteractionElement {
 	public List<TiledMapTile> onTiles;
 
 	public List<TiledMapTile> offTiles;
