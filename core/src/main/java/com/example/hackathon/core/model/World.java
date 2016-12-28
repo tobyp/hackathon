@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class World {
 	private List<InteractionElement> interactionElements = new ArrayList<>();
@@ -23,7 +25,7 @@ public class World {
 	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
 
 	private static boolean isWalkable(int cellType) {
-		return true; //cellType == 2;
+		return cellType != 0;
 	}
 
 	public World(TiledMap map) {
@@ -64,30 +66,23 @@ public class World {
 			// Test for collisions in the newly occupied cells
 			// X coordinate
 			if (diff.x != 0) {
-				// The current tile coordinate
-				int cur;
-				// The next coordinate
-				int next;
 				// The step to go from cur to next
-				int step;
-				if (diff.x < 0) {
-					cur = (int) e.getLocation().x;
-					next = (int) (e.getLocation().x + diff.x);
-					step = -1;
-				} else {
-					cur = (int) (e.getLocation().x + e.getSize().x);
-					next = (int) (e.getLocation().x + e.getSize().x + diff.x);
-					step = 1;
-				}
+				int step = (int) Math.copySign(1, diff.x);
+				// The current tile coordinate
+				int cur =  (int) (e.getLocation().x + step * e.getSize().x / 2);
+				// The next coordinate
+				int next =  (int) (e.getLocation().x + step * e.getSize().x / 2 + diff.x);
 			outer:
-				for (int i = cur; i != next; i += step) {
+				for (int i = cur + step; i != next + step; i += step) {
 					// Test if this x coordinate overlaps somewhere in the height of the robot
 					int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y);
 					for (int j = (int) e.getLocation().y; j < maxJ; j++) {
+						Logger.getAnonymousLogger().info("id: " + getCellTileId(i,j) + " position: " + i + ", " + j);
 						if (!isWalkable(getCellTileId(i, j))) {
 							// Set the coordinate to the border one step backwards
 							// because we have a collision.
-							diff.x = i - step - e.getLocation().x;
+							diff.x = i - e.getLocation().x - e.getSize().x / 2;
+							Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 							break outer;
 						}
 					}
@@ -111,7 +106,7 @@ public class World {
 					step = 1;
 				}
 				outer:
-				for (int i = cur; i != next; i += step) {
+				for (int i = cur + step; i != next + step; i += step) {
 					// Test if this y coordinate overlaps somewhere in the height of the robot
 					int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x);
 					for (int j = (int) e.getLocation().x; j < maxJ; j++) {

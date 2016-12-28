@@ -1,5 +1,6 @@
 package com.example.hackathon.core;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.badlogic.gdx.Input;
@@ -88,12 +89,12 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			camera.translate(displacement);
 		}*/
 
-		if (world.getPlayer().getTarget() != null) {
+		/*if (world.getPlayer().getTarget() != null) {
 			Logger.getAnonymousLogger().info("Pos (" + world.getPlayer().getLocation().x + "," + world.getPlayer().getLocation().y + "), Tgt (" + world.getPlayer().getTarget().x + "," + world.getPlayer().getTarget().y + ")");
 		}
 		else {
 			Logger.getAnonymousLogger().info("Pos (" + world.getPlayer().getLocation().x + "," + world.getPlayer().getLocation().y + "), Tgt (null)");
-		}
+		}*/
 
 
 		// Render

@@ -23,6 +23,7 @@ public class Player extends Robot {
 		battery = batteryMax;
 		consumption = 0.0f;
 		upgrades = new ArrayList<Upgrade>();
+		velocity = new Vector2(0.5f,-0.5f);
 	}
 
 	public void addUpgrade(Upgrade u) {
