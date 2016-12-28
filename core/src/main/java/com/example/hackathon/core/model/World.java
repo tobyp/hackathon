@@ -18,8 +18,8 @@ public class World {
 	private Player player = new Player();
 
 	public static final float INTERACTION_RADIUS = 1;
-	Integer[] CLICK_BUTTON_ON_TILE_IDS = {33,34,55,56};
-	Integer[] CLICK_BUTTON_OFF_TILE_IDS = {35,36,57,58};
+	int[] CLICK_BUTTON_ON_TILE_IDS = {33,34,55,56};
+	int[] CLICK_BUTTON_OFF_TILE_IDS = {35,36,57,58};
 
 	private static boolean isWalkable(int cellType) {
 		return cellType == 2;
@@ -145,7 +145,8 @@ public class World {
 
 		for (int x = 0; x < width; i++) {
 			for (int y = 0; y < height; y++) {
-				if (Arrays.asList(CLICK_BUTTON_OFF_TILE_IDS).contains(getCellTileId(x,y))) {
+				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
+					// ClickButton cb = new ClickButton(new Vector2(x+1, ))
 					// add Button to matching location (and look, that it is not added multiple times (only on upper left tile?)
 				}
 			}
