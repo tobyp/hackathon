@@ -49,7 +49,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		tew_texture = new Texture("tew.png");
 		tew_sprite = new Sprite(tew_texture, 128, 128);
-		tew_sprite.setScale(1.f);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -63,9 +62,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	@Override
 	public void resize (int width, int height) {
 		camera.setToOrtho(false, (float)width / height * TILES_PER_SCREEN_Y, TILES_PER_SCREEN_Y);
-		gameBatch.getProjectionMatrix().setToOrtho2D(0, 0, (float)width / height * TILES_PER_SCREEN_Y, TILES_PER_SCREEN_Y);
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
-		gameBatch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
 	}
 
 	@Override
@@ -85,6 +82,12 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		camera.position.set(world.getPlayer().getLocation(), 0);
 		camera.update();
+		gameBatch.setTransformMatrix(camera.view);
+		gameBatch.setProjectionMatrix(camera.projection);
+		//Vector2 pl = world.getPlayer().getLocation();
+		//float width = (float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() * TILES_PER_SCREEN_Y;
+		//float height = TILES_PER_SCREEN_Y;
+		//gameBatch.getProjectionMatrix().setToOrtho2D(v2.x - width / 2, v2.y - height / 2, width, height);
 
 		map_renderer.setView(camera);
 		map_renderer.render();
@@ -92,11 +95,22 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		gameBatch.begin();
 		for (Entity e : world.getEntities()) {
-			Vector3 p = new Vector3(e.getLocation(), 0);
-			camera.project(p);
+			/*Vector3 p = new Vector3(e.getLocation(), 0);
 			// Manually center the texture
-			tew_sprite.setPosition(p.x - tew_sprite.getWidth() / 2.0f, p.y - tew_sprite.getHeight() / 2.0f);
-			//tew_sprite.setPosition(r.getLocation().x, r.getLocation().y);
+			//tew_sprite.setPosition(p.x - tew_sprite.getWidth() / 2.0f, p.y - tew_sprite.getHeight() / 2.0f);
+			Matrix4 m = gameBatch.getProjectionMatrix().cpy().mul(gameBatch.getTransformMatrix());
+			//System.out.println("Before: " + p);
+			//System.out.println("2:      " + p.cpy().prj(camera.combined));
+			//p.mul(m);
+			//System.out.println("After:  " + p);
+			tew_sprite.setPosition(e.getLocation().x, e.getLocation().y);
+			//gameBatch.draw(tew_sprite, e.getLocation().x, e.getLocation().y, 2, 2);
+			tew_sprite.setSize(2, 2);
+			tew_sprite.draw(gameBatch);*/
+
+			Vector2 p = e.getSize().cpy().scl(-0.5f).add(e.getLocation());
+			tew_sprite.setPosition(p.x, p.y);
+			tew_sprite.setSize(e.getSize().x, e.getSize().y);
 			tew_sprite.draw(gameBatch);
 		}
 		gameBatch.end();
