@@ -9,6 +9,6 @@ public class Upgrade {
 	public Upgrade(int capacityChange, int consumptionChange)
 	{
 		batteryCapacityChange = capacityChange;
-		consumptionChange = batteryCapacityChange;
+		batteryCapacityChange = consumptionChange;
 	}
 }

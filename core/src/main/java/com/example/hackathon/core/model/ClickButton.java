@@ -17,9 +17,9 @@ public class ClickButton extends ButtonElement{
     	isActivated = initState;
 		location = loc;
 
-		onTiles = onTiles;
-		offTiles = offTiles;
-		coveredCells = coveredCells;
+		this.onTiles = onTiles;
+		this.offTiles = offTiles;
+		this.coveredCells = coveredCells;
     }
 
     @Override
