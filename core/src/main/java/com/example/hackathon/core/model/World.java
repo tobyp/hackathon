@@ -22,7 +22,7 @@ public class World {
 	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
 
 	private static boolean isWalkable(int cellType) {
-		return cellType == 2;
+		return true; //cellType == 2;
 	}
 
 	public World(TiledMap map) {

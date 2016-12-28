@@ -66,18 +66,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		player.setVelocity(diff);
 	}
 
-	private void updateMovement(float deltaTime) {
-		// TODO Compute movement for all robots
-		Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
-		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
-		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
-				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
-				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
-			camera.translate(displacement);
-		}
-		world.getPlayer().getVelocity().add(displacement);
-	}
-
 	@Override
 	public void create () {
 		font = new BitmapFont();
@@ -88,7 +76,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		camera = new OrthographicCamera();
 
 		tew_texture = new Texture("tew.png");
-		tew_sprite = new Sprite(tew_texture, 64, 64);
+		tew_sprite = new Sprite(tew_texture, 128, 128);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -113,7 +101,14 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		// Update logic
 		//world.updateMovement(deltaTime);
-		updateMovement(deltaTime);
+
+		/*Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
+		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
+		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
+				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
+				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
+			camera.translate(displacement);
+		}*/
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -201,6 +196,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
+		updateMouseInput();
 		return false;
 	}
 
