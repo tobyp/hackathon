@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class World {
 	private List<InteractionElement> interactionElements = new ArrayList<>();
@@ -22,8 +23,8 @@ public class World {
 	private List<Entity> entities;
 
 	public static final float INTERACTION_RADIUS = 1;
-	int[] CLICK_BUTTON_ON_TILE_IDS = { 33, 34, 55, 56 };
-	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
+	int[] CLICK_BUTTON_ON_TILE_IDS = { 44, 45, 76, 77 };
+	int[] CLICK_BUTTON_OFF_TILE_IDS = { 42, 43, 74, 75 };
 
 	private boolean isWalkable(int x, int y) {
 		return walk_layer.getCell(x, y).getTile().getId() != 1;
@@ -52,7 +53,10 @@ public class World {
 	}
 
 	public int getCellTileId(int x, int y) {
-		return ((TiledMapTileLayer) map.getLayers().get(0)).getCell(x, y).getTile().getId();
+		TiledMapTileLayer.Cell cell = ((TiledMapTileLayer) map.getLayers().get("ground")).getCell(x, y);
+		if (cell == null)
+			return -1;
+		return cell.getTile().getId();
 	}
 
 	public int getCellTileId(Vector2 v) {
@@ -84,12 +88,12 @@ public class World {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
 						int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y / 2);
 						for (int j = (int) (e.getLocation().y - e.getSize().y / 2); j < maxJ; j++) {
-							Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
+							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(i, j)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
 								diff.x = i - (step - 1) / 2 - e.getLocation().x - step * e.getSize().x / 2;
-								Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
+								//Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 								break outer;
 							}
 						}
@@ -110,12 +114,12 @@ public class World {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
 						int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x / 2);
 						for (int j = (int) (e.getLocation().x - e.getSize().x / 2); j < maxJ; j++) {
-							Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
+							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(j, i)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
 								diff.y = i - (step - 1) / 2 - (e.getLocation().y + step * e.getSize().y / 2);
-								Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
+								//Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 								break outer;
 							}
 						}
@@ -126,6 +130,7 @@ public class World {
 			e_.update(deltaTime);
 		}
 		checkForInteraction();
+		interactionElements.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
 	}
 
 	/**
@@ -146,21 +151,24 @@ public class World {
 		List<TiledMapTile> clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		List<TiledMapTile> clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
 
-		int width = ((TiledMapTileLayer) map.getLayers().get(0)).getWidth();
-		int height = ((TiledMapTileLayer) map.getLayers().get(0)).getHeight();
+		int width = ((TiledMapTileLayer) map.getLayers().get("ground")).getWidth();
+		int height = ((TiledMapTileLayer) map.getLayers().get("ground")).getHeight();
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
+				Logger.getAnonymousLogger().info("x: " + x + " y: " + y + " id: " + getCellTileId(x,y));
 				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
 							true, clickButtonOnTiles, clickButtonOffTiles, cells);
 					addIntercationElement(cb);
+					Logger.getAnonymousLogger().info("!!!!!!!!!!! on button set !!!!!!!!!!!!");
 				} else if (CLICK_BUTTON_OFF_TILE_IDS[0] == getCellTileId(x,y)) {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
 							false, clickButtonOnTiles, clickButtonOffTiles, cells);
 					addIntercationElement(cb);
+					Logger.getAnonymousLogger().info("!!!!!!!!!!! off button set !!!!!!!!!!!!");
 				}
 			}
 		}
@@ -176,10 +184,10 @@ public class World {
 
 	public List<TiledMapTileLayer.Cell> getCellsByCoords(int x, int y, int radius) {
 		List<TiledMapTileLayer.Cell> back = new ArrayList<>();
-		for (int i = 0; i < radius; i++) {
-			for (int j = 0; j < radius; j++) {
+		for (int j = 0; j < radius; j++) {
+			for (int i = 0; i < radius; i++) {
 				// go for x to the right and for y down
-				back.add(((TiledMapTileLayer)map.getLayers().get(0)).getCell(x+i, y-j));
+				back.add(((TiledMapTileLayer)map.getLayers().get("ground")).getCell(x+i, y-j));
 			}
 		}
 		return back;
