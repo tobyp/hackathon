@@ -45,30 +45,10 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	public static boolean isGameOver = false;
 
-	/**
-	 * If the player movement can be set by a mouse movement.
-	 * false if it is set by the keyboard.
-	 * The mouse will only set the movement if this variable is set to true.
-	 */
-	private boolean movementSetByMouse;
-
-	/**
-	 * Update the movement by the mouse depending on the player position.
-	 */
-	private void updateMouseInput() {
-		if (!movementSetByMouse)
-			return;
-		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-		camera.unproject(pos);
-		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
-	}
-
 	@Override
 	public void create () {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
-
-		movementSetByMouse = true;
 
 		camera = new OrthographicCamera();
 
@@ -93,8 +73,9 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	public void render () {
 		float deltaTime = Gdx.graphics.getDeltaTime();
 
-		// Update input
-		updateMouseInput();
+		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+		camera.unproject(pos);
+		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
 
 		// Update logic
 		world.update(deltaTime);
@@ -106,6 +87,14 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
 			camera.translate(displacement);
 		}*/
+
+		if (world.getPlayer().getTarget() != null) {
+			Logger.getAnonymousLogger().info("Pos (" + world.getPlayer().getLocation().x + "," + world.getPlayer().getLocation().y + "), Tgt (" + world.getPlayer().getTarget().x + "," + world.getPlayer().getTarget().y + ")");
+		}
+		else {
+			Logger.getAnonymousLogger().info("Pos (" + world.getPlayer().getLocation().x + "," + world.getPlayer().getLocation().y + "), Tgt (null)");
+		}
+
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -124,7 +113,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		batch.begin();
 		tew_sprite.draw(batch);
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
-
+		font.draw(batch, "Energy: " + world.getPlayer().getBattery() + "/" + world.getPlayer().getBatteryMax(), 100, 20);
 		if (isGameOver) {
 			Gdx.gl.glClearColor(0, 0, 0, 0);
 			Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
@@ -143,7 +132,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void resume () {
-		movementSetByMouse = true;
+
 	}
 
 	@Override
@@ -154,34 +143,11 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		Vector2 m = Vector2.Zero;
-		if (keycode == Input.Keys.W)
-			m = Vector2.Y;
-		else if (keycode == Input.Keys.S)
-			m = new Vector2(0, -1);
-		else if (keycode == Input.Keys.A)
-			m = new Vector2(-1, 0);
-		else if (keycode == Input.Keys.D)
-			m = Vector2.X;
-
-		if (m != Vector2.Zero) {
-			world.getPlayer().setVelocity(m);
-			world.getPlayer().setTarget(null);
-			movementSetByMouse = false;
-		}
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (keycode == Input.Keys.W ||
-			keycode == Input.Keys.S ||
-			keycode == Input.Keys.A ||
-			keycode == Input.Keys.D) {
-			world.getPlayer().setVelocity(Vector2.Zero);
-			// Let the mouse control the player again
-			movementSetByMouse = true;
-		}
 		return false;
 	}
 
@@ -207,8 +173,10 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		updateMouseInput();
-		return false;
+		Vector3 pos = new Vector3(screenX, screenY, 0);
+		camera.unproject(pos);
+		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
+		return true;
 	}
 
 	@Override

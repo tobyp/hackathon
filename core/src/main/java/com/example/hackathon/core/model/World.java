@@ -14,7 +14,9 @@ public class World {
 	private List<InteractionElement> interactionElements = new ArrayList<>();
 
 	private TiledMap map;
-	private Player player = new Player();
+	private Player player;
+
+	private List<Entity> entities;
 
 	public static final float INTERACTION_RADIUS = 1;
 	int[] CLICK_BUTTON_ON_TILE_IDS = { 33, 34, 55, 56 };
@@ -29,8 +31,11 @@ public class World {
 		MapLayer meta_layer = map.getLayers().get("meta");
 		MapObject player_start = meta_layer.getObjects().get("player-start");
 
+		this.player = new Player();
 		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth(), player_start.getProperties().get("y", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth()));
 
+		this.entities = new ArrayList<>();
+		entities.add(player);
 		findInteractionElements();
 	}
 
@@ -51,16 +56,11 @@ public class World {
 	}
 
 	public void update(float deltaTime) {
-		updateMovement(deltaTime);
-		checkForInteraction();
-	}
-
-	public void updateMovement(float deltaTime) {
 		// Compute the movement for all robots
-		List<Robot> robots = new ArrayList<>();
-		robots.add(player);
-		for (Robot r : robots) {
-			Vector2 diff = r.getVelocity().cpy().scl(deltaTime);
+		for (Entity e : entities) {
+			e.update(deltaTime);
+
+			Vector2 diff = e.getVelocity().cpy().scl(deltaTime);
 			// Test for collisions in the newly occupied cells
 			// X coordinate
 			if (diff.x != 0) {
@@ -71,23 +71,23 @@ public class World {
 				// The step to go from cur to next
 				int step;
 				if (diff.x < 0) {
-					cur = (int) r.getLocation().x;
-					next = (int) (r.getLocation().x + diff.x);
+					cur = (int) e.getLocation().x;
+					next = (int) (e.getLocation().x + diff.x);
 					step = -1;
 				} else {
-					cur = (int) (r.getLocation().x + r.getSize().x);
-					next = (int) (r.getLocation().x + r.getSize().x + diff.x);
+					cur = (int) (e.getLocation().x + e.getSize().x);
+					next = (int) (e.getLocation().x + e.getSize().x + diff.x);
 					step = 1;
 				}
 			outer:
 				for (int i = cur; i != next; i += step) {
 					// Test if this x coordinate overlaps somewhere in the height of the robot
-					int maxJ = (int) Math.ceil(r.getLocation().y + r.getSize().y);
-					for (int j = (int) r.getLocation().y; j < maxJ; j++) {
+					int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y);
+					for (int j = (int) e.getLocation().y; j < maxJ; j++) {
 						if (!isWalkable(getCellTileId(i, j))) {
 							// Set the coordinate to the border one step backwards
 							// because we have a collision.
-							diff.x = i - step - r.getLocation().x;
+							diff.x = i - step - e.getLocation().x;
 							break outer;
 						}
 					}
@@ -102,30 +102,31 @@ public class World {
 				// The step to go from cur to next
 				int step;
 				if (diff.y < 0) {
-					cur = (int) r.getLocation().y;
-					next = (int) (r.getLocation().y + diff.y);
+					cur = (int) e.getLocation().y;
+					next = (int) (e.getLocation().y + diff.y);
 					step = -1;
 				} else {
-					cur = (int) (r.getLocation().y + r.getSize().y);
-					next = (int) (r.getLocation().y + r.getSize().y + diff.y);
+					cur = (int) (e.getLocation().y + e.getSize().y);
+					next = (int) (e.getLocation().y + e.getSize().y + diff.y);
 					step = 1;
 				}
 				outer:
 				for (int i = cur; i != next; i += step) {
 					// Test if this y coordinate overlaps somewhere in the height of the robot
-					int maxJ = (int) Math.ceil(r.getLocation().x + r.getSize().x);
-					for (int j = (int) r.getLocation().x; j < maxJ; j++) {
+					int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x);
+					for (int j = (int) e.getLocation().x; j < maxJ; j++) {
 						if (!isWalkable(getCellTileId(j, i))) {
 							// Set the coordinate to the border one step backwards
 							// because we have a collision.
-							diff.y = i - step - r.getLocation().y;
+							diff.y = i - step - e.getLocation().y;
 							break outer;
 						}
 					}
 				}
 			}
-			r.getLocation().add(diff);
+			e.getLocation().add(diff);
 		}
+		checkForInteraction();
 	}
 
 	/**

@@ -8,21 +8,21 @@ import java.util.List;
 
 public class Player extends Robot {
 	// how much energy is still left in the battery, between 0 and batteryMax
-	private int battery;
+	private float battery;
 	// how much energy the battery can hold
-	private int batteryMax;
+	private float batteryMax;
 	// how much battery is consumed per timestep
-	private int consumption;
+	private float consumption;
 
 	private Vector2 target;
 
 	private List<Upgrade> upgrades;
 
 	public Player() {
-		batteryMax = 10;
+		batteryMax = 1.f;
 		battery = batteryMax;
-		consumption = 1;
-		upgrades = new ArrayList<>();
+		consumption = 0.0f;
+		upgrades = new ArrayList<Upgrade>();
 	}
 
 	public void addUpgrade(Upgrade u) {
@@ -30,48 +30,37 @@ public class Player extends Robot {
 		recalculateStats();
 	}
 
-	/**
-	 * Updates batteryMax and consumption (for new upgrades)
-	 */
+	// updates batteryMax and consumption (for new upgrades)
 	private void recalculateStats() {
+		batteryMax = 1.f;
+		consumption = 0.0f;
 		for (Upgrade u : upgrades) {
-			setBatteryMax(batteryMax + u.batteryCapacityChange);
-			setConsumption(consumption + u.batteryConsumptionChange);
+			u.apply(this);
 		}
 	}
 
-	public int getBattery() {
+	public float getBattery() {
 		return battery;
 	}
 
-	public void setBattery(int battery) {
-		if (battery < 0) {
-			this.battery = 0;
-			HackathonGame.isGameOver = true;
-		} else if (battery > batteryMax) {
-			this.battery = batteryMax;
-		} else {
-			this.battery = battery;
-		}
-
+	public void setBattery(float battery) {
+		this.battery = Math.max(0.f, Math.min(battery, batteryMax)); //die on update()
 	}
 
-	public int getBatteryMax() {
+	public float getBatteryMax() {
 		return batteryMax;
 	}
 
-	public void setBatteryMax(int batteryMax) {
-		if (batteryMax <= 0) {
-			HackathonGame.isGameOver = true;
-		}
-		this.batteryMax = batteryMax;
+	public void setBatteryMax(float batteryMax) {
+		this.batteryMax = Math.max(1.f, batteryMax);
+		this.battery = Math.min(battery, this.batteryMax); //die on update()
 	}
 
-	public int getConsumption() {
+	public float getConsumption() {
 		return consumption;
 	}
 
-	public void setConsumption(int consumption) {
+	public void setConsumption(float consumption) {
 		this.consumption = consumption;
 	}
 
@@ -79,20 +68,15 @@ public class Player extends Robot {
 		return target;
 	}
 
-	public void setTarget(Vector2 v) {
-		target = v;
+	public void setTarget(Vector2 target) {
+		this.target = target;
 	}
 
+	@Override
 	public void update(float deltaTime) {
-		// Consume battery
-		setBattery(battery - (int) (consumption * deltaTime));
-		// Walk to the target
-		if (target != null) {
-			// Target - Player
-			Vector2 diff = location.cpy().sub(target.x, target.y);
-			// Clamp the velocity
-			diff.clamp(1, 1.5f);
-			setVelocity(diff);
+		battery -= consumption * deltaTime;
+		if (battery <= 0.f) {
+			HackathonGame.isGameOver = true;
 		}
 	}
 }
