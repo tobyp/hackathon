@@ -133,6 +133,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	@Override
 	public void dispose () {
 		world.getMap().dispose();
+		batch.dispose();
 	}
 
 	@Override
