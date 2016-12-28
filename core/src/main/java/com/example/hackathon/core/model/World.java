@@ -55,11 +55,13 @@ public class World {
 		return getCellTileId((int) v.x, (int) v.y);
 	}
 
-	public void update(float deltaTime) {
-		// Compute the movement for all robots
-		for (Entity e : entities) {
-			e.update(deltaTime);
+	public List<Entity> getEntities() {
+		return entities;
+	}
 
+	public void update(float deltaTime) {
+		for (Entity e : entities) {
+			// Compute the movement for all entities
 			Vector2 diff = e.getVelocity().cpy().scl(deltaTime);
 			// Test for collisions in the newly occupied cells
 			// X coordinate
@@ -79,7 +81,7 @@ public class World {
 					next = (int) (e.getLocation().x + e.getSize().x + diff.x);
 					step = 1;
 				}
-			outer:
+				outer:
 				for (int i = cur; i != next; i += step) {
 					// Test if this x coordinate overlaps somewhere in the height of the robot
 					int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y);
@@ -125,6 +127,8 @@ public class World {
 				}
 			}
 			e.getLocation().add(diff);
+
+			e.update(deltaTime);
 		}
 		checkForInteraction();
 	}
