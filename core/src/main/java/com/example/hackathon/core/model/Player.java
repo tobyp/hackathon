@@ -23,7 +23,7 @@ public class Player extends DynamicEntity {
 		battery = batteryMax;
 		consumption = 0.0f;
 		upgrades = new ArrayList<Upgrade>();
-		velocity = new Vector2(0.5f,-0.5f);
+		velocity = new Vector2(-0.5f,-0.5f);
 	}
 
 	public void addUpgrade(Upgrade u) {
@@ -79,5 +79,6 @@ public class Player extends DynamicEntity {
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}
+		velocity = target.sub(location).scl(0.2f);
 	}
 }

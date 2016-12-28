@@ -26,7 +26,7 @@ public class World {
 	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
 
 	private boolean isWalkable(int x, int y) {
-		return walk_layer.getCell(x, y).getTile().getId() != 0;
+		return walk_layer.getCell(x, y).getTile().getId() != 1;
 	}
 
 	public World(TiledMap map) {
@@ -52,7 +52,7 @@ public class World {
 	}
 
 	public int getCellTileId(int x, int y) {
-		return ((TiledMapTileLayer) map.getLayers().get(0)).getCell(0, 0).getTile().getId();
+		return ((TiledMapTileLayer) map.getLayers().get(0)).getCell(x, y).getTile().getId();
 	}
 
 	public int getCellTileId(Vector2 v) {
@@ -73,60 +73,55 @@ public class World {
 				// Test for collisions in the newly occupied cells
 				// X coordinate
 				if (diff.x != 0) {
-				// The step to go from cur to next
-				int step = (int) Math.copySign(1, diff.x);
+					// The step to go from cur to next
+					int step = (int) Math.copySign(1, diff.x);
 					// The current tile coordinate
-				int cur =  (int) (e.getLocation().x + step * e.getSize().x / 2);
+					int cur =  (int) (e.getLocation().x + step * e.getSize().x / 2);
 					// The next coordinate
-				int next =  (int) (e.getLocation().x + step * e.getSize().x / 2 + diff.x);
+					int next =  (int) (e.getLocation().x + step * e.getSize().x / 2 + diff.x);
 					outer:
-				for (int i = cur + step; i != next + step; i += step) {
+					for (int i = cur; i != next + step; i += step) {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
-						int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y);
-						for (int j = (int) e.getLocation().y; j < maxJ; j++) {
-						Logger.getAnonymousLogger().info("id: " + getCellTileId(i,j) + " position: " + i + ", " + j);
-							if (!isWalkable(getCellTileId(i, j))) {
+						int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y / 2);
+						for (int j = (int) (e.getLocation().y - e.getSize().y / 2); j < maxJ; j++) {
+							Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
+							if (!isWalkable(i, j)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
-							diff.x = i - e.getLocation().x - e.getSize().x / 2;
-							Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
+								diff.x = i - (step - 1) / 2 - e.getLocation().x - step * e.getSize().x / 2;
+								Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 								break outer;
 							}
 						}
 					}
+					e.getLocation().x += diff.x;
 				}
+
 				// Y coordinate
 				if (diff.y != 0) {
-					// The current tile coordinate
-					int cur;
-					// The next coordinate
-					int next;
 					// The step to go from cur to next
-					int step;
-					if (diff.y < 0) {
-						cur = (int) e.getLocation().y;
-						next = (int) (e.getLocation().y + diff.y);
-						step = -1;
-					} else {
-						cur = (int) (e.getLocation().y + e.getSize().y);
-						next = (int) (e.getLocation().y + e.getSize().y + diff.y);
-						step = 1;
-					}
+					int step = (int) Math.copySign(1, diff.y);
+					// The current tile coordinate
+					int cur =  (int) (e.getLocation().y + step * e.getSize().y / 2);
+					// The next coordinate
+					int next =  (int) (e.getLocation().y + step * e.getSize().y / 2 + diff.y);
 					outer:
-				for (int i = cur + step; i != next + step; i += step) {
-						// Test if this y coordinate overlaps somewhere in the height of the robot
-						int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x);
-						for (int j = (int) e.getLocation().x; j < maxJ; j++) {
-							if (!isWalkable(getCellTileId(j, i))) {
+					for (int i = cur; i != next + step; i += step) {
+						// Test if this x coordinate overlaps somewhere in the height of the robot
+						int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x / 2);
+						for (int j = (int) (e.getLocation().x - e.getSize().x / 2); j < maxJ; j++) {
+							Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
+							if (!isWalkable(j, i)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
-								diff.y = i - step - e.getLocation().y;
+								diff.y = i - (step - 1) / 2 - (e.getLocation().y + step * e.getSize().y / 2);
+								Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 								break outer;
 							}
 						}
 					}
+					e.getLocation().y += diff.y;
 				}
-				e.getLocation().add(diff);
 			}
 			e_.update(deltaTime);
 		}
