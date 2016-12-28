@@ -26,7 +26,7 @@ public class Item extends Entity {
 
 	@Override
 	public void collide(World world, Entity entity) {
-		
+
 	}
 
 	public void render(SpriteBatch batch) {

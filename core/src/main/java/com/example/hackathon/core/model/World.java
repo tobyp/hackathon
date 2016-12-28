@@ -25,8 +25,8 @@ public class World {
 	private List<Entity> entities;
 
 	public static final float INTERACTION_RADIUS = 1;
-	int[] CLICK_BUTTON_ON_TILE_IDS = { 44, 45, 76, 77 };
-	int[] CLICK_BUTTON_OFF_TILE_IDS = { 42, 43, 74, 75 };
+	int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
+	int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
 
 	private boolean isWalkable(int x, int y) {
 		return walk_layer.getCell(x, y).getTile().getId() != 1;
