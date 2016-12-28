@@ -6,7 +6,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -31,6 +33,8 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
+	private Texture tew_texture;
+	private Sprite tew_sprite;
 
 	private World world;
 
@@ -71,7 +75,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
 			camera.translate(displacement);
 		}
-		world.getPlayer().getLocation().add(displacement);
+		world.getPlayer().getVelocity().add(displacement);
 	}
 
 	@Override
@@ -82,6 +86,9 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		movementSetByMouse = true;
 
 		camera = new OrthographicCamera();
+
+		tew_texture = new Texture("tew.png");
+		tew_sprite = new Sprite(tew_texture, 64, 64);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -105,7 +112,8 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		updateMouseInput();
 
 		// Update logic
-		world.updateMovement(deltaTime);
+		//world.updateMovement(deltaTime);
+		updateMovement(deltaTime);
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -116,7 +124,10 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		map_renderer.setView(camera);
 		map_renderer.render();
 
+		tew_sprite.setPosition(world.getPlayer().getLocation().x, world.getPlayer().getLocation().y);
+
 		batch.begin();
+		tew_sprite.draw(batch);
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
 	}
