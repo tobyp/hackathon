@@ -24,6 +24,6 @@ public class UpgradeItem extends DynamicEntity {
             ((Player)entity).addUpgrade(this.upgrade);
         }
 
-        world.remove(this);
+        world.removeEntity(this);
     }
 }

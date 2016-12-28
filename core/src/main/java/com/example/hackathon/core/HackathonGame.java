@@ -3,9 +3,7 @@ package com.example.hackathon.core;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -18,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import com.example.hackathon.core.model.DynamicEntity;
 import com.example.hackathon.core.model.Entity;
 import com.example.hackathon.core.model.World;
 
@@ -27,15 +26,13 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
-	private Texture tew_texture;
-	private Sprite tew_sprite;
 
 	private World world;
 
 	private Vector2 camera_pos;
 
-	private final float TILES_PER_SCREEN_Y = 10f;
-	private final float CAMERA_MOVE_MARGIN = 0.05f;
+	private static final float TILES_PER_SCREEN_Y = 10f;
+	private static final float CAMERA_MOVE_MARGIN = 0.05f;
 
 	public static boolean isGameOver = false;
 
@@ -46,10 +43,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		gameBatch = new SpriteBatch();
 
 		camera = new OrthographicCamera();
-
-		tew_texture = new Texture("tew.png");
-		tew_sprite = new Sprite(tew_texture, 128, 128);
-		tew_sprite.setScale(1.f);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -63,9 +56,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	@Override
 	public void resize (int width, int height) {
 		camera.setToOrtho(false, (float)width / height * TILES_PER_SCREEN_Y, TILES_PER_SCREEN_Y);
-		gameBatch.getProjectionMatrix().setToOrtho2D(0, 0, (float)width / height * TILES_PER_SCREEN_Y, TILES_PER_SCREEN_Y);
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
-		gameBatch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
 	}
 
 	@Override
@@ -85,19 +76,21 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		camera.position.set(world.getPlayer().getLocation(), 0);
 		camera.update();
+		// Set render coordinates to world space
+		gameBatch.setTransformMatrix(camera.view);
+		gameBatch.setProjectionMatrix(camera.projection);
 
 		map_renderer.setView(camera);
 		map_renderer.render();
 
 
+		// Render entities
 		gameBatch.begin();
 		for (Entity e : world.getEntities()) {
-			Vector3 p = new Vector3(e.getLocation(), 0);
-			camera.project(p);
-			// Manually center the texture
-			tew_sprite.setPosition(p.x - tew_sprite.getWidth() / 2.0f, p.y - tew_sprite.getHeight() / 2.0f);
-			//tew_sprite.setPosition(r.getLocation().x, r.getLocation().y);
-			tew_sprite.draw(gameBatch);
+			if (e instanceof DynamicEntity) {
+				DynamicEntity de = (DynamicEntity) e;
+				de.render(gameBatch);
+			}
 		}
 		gameBatch.end();
 

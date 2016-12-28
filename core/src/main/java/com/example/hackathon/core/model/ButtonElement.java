@@ -14,6 +14,8 @@ public abstract class ButtonElement extends Entity {
 
 	public boolean isActivated;
 
+	protected int cooldown;
+
 	public void updateTiles() {
 		if (isActivated) {
 			for (TiledMapTileLayer.Cell cell : coveredCells) {

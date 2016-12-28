@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
+import com.example.hackathon.core.HackathonGame;
 import com.example.hackathon.core.ScriptCommand;
 
 import java.lang.reflect.Method;
@@ -32,8 +33,8 @@ public class World {
 	private float worldTime;
 
 	public static final float INTERACTION_RADIUS = 1;
-	int[] CLICK_BUTTON_ON_TILE_IDS = { 33, 34, 55, 56 };
-	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
+	int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
+	int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
 
 	private boolean isWalkable(int x, int y) {
 		return walkLayer.getCell(x, y).getTile().getId() != 1;
@@ -50,7 +51,7 @@ public class World {
 
 		this.entities = new ArrayList<>();
 		entities.add(player);
-		findInteractionElements();
+		findEntitys();
 	}
 
 	public TiledMap getMap() {
@@ -62,7 +63,10 @@ public class World {
 	}
 
 	public int getCellTileId(int x, int y) {
-		return ((TiledMapTileLayer) map.getLayers().get(0)).getCell(x, y).getTile().getId();
+		TiledMapTileLayer.Cell cell = ((TiledMapTileLayer) map.getLayers().get("ground")).getCell(x, y);
+		if (cell == null)
+			return -1;
+		return cell.getTile().getId();
 	}
 
 	public int getCellTileId(Vector2 v) {
@@ -95,12 +99,12 @@ public class World {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
 						int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y / 2);
 						for (int j = (int) (e.getLocation().y - e.getSize().y / 2); j < maxJ; j++) {
-							Logger.getAnonymousLogger().info("id: " + walkLayer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
+							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(i, j)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
 								diff.x = i - (step - 1) / 2 - e.getLocation().x - step * e.getSize().x / 2;
-								Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
+								//Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 								break outer;
 							}
 						}
@@ -121,12 +125,12 @@ public class World {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
 						int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x / 2);
 						for (int j = (int) (e.getLocation().x - e.getSize().x / 2); j < maxJ; j++) {
-							Logger.getAnonymousLogger().info("id: " + walkLayer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
+							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(j, i)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
 								diff.y = i - (step - 1) / 2 - (e.getLocation().y + step * e.getSize().y / 2);
-								Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
+								//Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
 								break outer;
 							}
 						}
@@ -134,39 +138,44 @@ public class World {
 					e.getLocation().y += diff.y;
 				}
 			}
-			e_.update(deltaTime);
+			e_.update(this, deltaTime);
 		}
 
 		entities.stream().filter(
 				(Entity e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
 				.forEach((Entity e) -> e.collide(this, player));
+
+		entities.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
 	}
 
 
-	public void addIntercationElement(Entity e) {
+	public void addEntity(Entity e) {
 		entities.add(e);
 	}
 
-	public void findInteractionElements() {
+	public void findEntitys() {
 		// find ClickButtons and add them to the InteractionElements
 		List<TiledMapTile> clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		List<TiledMapTile> clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
 
-		int width = ((TiledMapTileLayer) map.getLayers().get(0)).getWidth();
-		int height = ((TiledMapTileLayer) map.getLayers().get(0)).getHeight();
+		int width = ((TiledMapTileLayer) map.getLayers().get("ground")).getWidth();
+		int height = ((TiledMapTileLayer) map.getLayers().get("ground")).getHeight();
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
+				Logger.getAnonymousLogger().info("x: " + x + " y: " + y + " id: " + getCellTileId(x,y));
 				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
 							true, clickButtonOnTiles, clickButtonOffTiles, cells);
-					addIntercationElement(cb);
+					addEntity(cb);
+					Logger.getAnonymousLogger().info("!!!!!!!!!!! on button set !!!!!!!!!!!!");
 				} else if (CLICK_BUTTON_OFF_TILE_IDS[0] == getCellTileId(x,y)) {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
 							false, clickButtonOnTiles, clickButtonOffTiles, cells);
-					addIntercationElement(cb);
+					addEntity(cb);
+					Logger.getAnonymousLogger().info("!!!!!!!!!!! off button set !!!!!!!!!!!!");
 				}
 			}
 		}
@@ -182,18 +191,18 @@ public class World {
 
 	public List<TiledMapTileLayer.Cell> getCellsByCoords(int x, int y, int radius) {
 		List<TiledMapTileLayer.Cell> back = new ArrayList<>();
-		for (int i = 0; i < radius; i++) {
-			for (int j = 0; j < radius; j++) {
+		for (int j = 0; j < radius; j++) {
+			for (int i = 0; i < radius; i++) {
 				// go for x to the right and for y down
-				back.add(((TiledMapTileLayer)map.getLayers().get(0)).getCell(x+i, y-j));
+				back.add(((TiledMapTileLayer)map.getLayers().get("ground")).getCell(x+i, y-j));
 			}
 		}
 		return back;
 	}
 
-	public void remove(Entity entity) {
+	public void removeEntity(Entity entity) {
 		if (entity == player) {
-			//TODO game over
+			HackathonGame.isGameOver = true;
 		}
 		this.entities.remove(entity);
 	}
@@ -264,7 +273,7 @@ public class World {
 	}
 
 	@ScriptCommand
-	public void teleport(int cell_x, int cell_y,, int x, int y) {
+	public void teleport(int cell_x, int cell_y, int x, int y) {
 		player.setLocation(new Vector2(x, y));
 	}
 
