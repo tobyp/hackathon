@@ -143,7 +143,7 @@ public class World {
 		int width = ((TiledMapTileLayer) map.getLayers().get(0)).getWidth();
 		int height = ((TiledMapTileLayer) map.getLayers().get(0)).getHeight();
 
-		for (int x = 0; x < width; i++) {
+		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
 					// ClickButton cb = new ClickButton(new Vector2(x+1, ))
