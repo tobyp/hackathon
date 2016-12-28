@@ -9,7 +9,7 @@ public class Robot {
 	/**
 	 * The coordinates of the center of the robot.
 	 */
-	private Vector2 location = Vector2.Zero;
+	protected Vector2 location = Vector2.Zero;
 	private Vector2 size = new Vector2(1, 1);
 
     /**

@@ -51,6 +51,11 @@ public class World {
 		return getCellTileId((int) v.x, (int) v.y);
 	}
 
+	public void update(float deltaTime) {
+		updateMovement(deltaTime);
+		checkForInteraction();
+	}
+
 	public void updateMovement(float deltaTime) {
 		// Compute the movement for all robots
 		List<Robot> robots = new ArrayList<>();

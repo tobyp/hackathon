@@ -58,12 +58,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			return;
 		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 		camera.unproject(pos);
-		// Camera - Player
-		Player player = world.getPlayer();
-		Vector2 diff = player.getLocation().sub(pos.x, pos.y);
-		if (diff.len2() < 1)
-			diff.nor();
-		player.setVelocity(diff);
+		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
 	}
 
 	@Override
@@ -156,6 +151,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		if (m != Vector2.Zero) {
 			world.getPlayer().setVelocity(m);
+			world.getPlayer().setTarget(null);
 			movementSetByMouse = false;
 		}
 		return false;

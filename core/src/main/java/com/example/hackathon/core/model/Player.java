@@ -21,7 +21,7 @@ public class Player extends Robot {
 		batteryMax = 10;
 		battery = batteryMax;
 		consumption = 1;
-		upgrades = new ArrayList<Upgrade>();
+		upgrades = new ArrayList<>();
 	}
 
 	public void addUpgrade(Upgrade u) {
@@ -29,17 +29,14 @@ public class Player extends Robot {
 		recalculateStats();
 	}
 
-	// updates batteryMax and consumption (for new upgrades)
+	/**
+	 * Updates batteryMax and consumption (for new upgrades)
+	 */
 	private void recalculateStats() {
 		for (Upgrade u : upgrades) {
 			setBatteryMax(batteryMax + u.batteryCapacityChange);
 			setConsumption(consumption + u.batteryConsumptionChange);
 		}
-	}
-
-	/// should be called once per elapsed timestep, decreases battery according to consumption
-	public void timeStep() {
-		setBattery(battery - consumption);
 	}
 
 	public int getBattery() {
@@ -77,13 +74,24 @@ public class Player extends Robot {
 		this.consumption = consumption;
 	}
 
-	public void update(float deltaTime) { }
-
 	public Vector2 getTarget() {
 		return target;
 	}
 
-	public void setTarget(Vector2 target) {
-		this.target = target;
+	public void setTarget(Vector2 v) {
+		target = v;
+	}
+
+	public void update(float deltaTime) {
+		// Consume battery
+		setBattery(battery - (int) (consumption * deltaTime));
+		// Walk to the target
+		if (target != null) {
+			// Target - Player
+			Vector2 diff = location.cpy().sub(target.x, target.y);
+			// Clamp the velocity
+			diff.clamp(1, 1.5f);
+			setVelocity(diff);
+		}
 	}
 }
