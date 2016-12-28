@@ -95,7 +95,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		updateMouseInput();
 
 		// Update logic
-		//world.updateMovement(deltaTime);
+		world.update(deltaTime);
 
 		/*Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
 		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
@@ -109,12 +109,15 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
+		camera.position.set(world.getPlayer().getLocation(), 0);
 		camera.update();
 
 		map_renderer.setView(camera);
 		map_renderer.render();
 
-		tew_sprite.setPosition(world.getPlayer().getLocation().x, world.getPlayer().getLocation().y);
+		Vector3 p = new Vector3(world.getPlayer().getLocation(), 0);
+		camera.project(p);
+		tew_sprite.setPosition(p.x, p.y);
 
 		batch.begin();
 		tew_sprite.draw(batch);

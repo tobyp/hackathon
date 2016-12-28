@@ -8,7 +8,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class World {
@@ -30,7 +29,7 @@ public class World {
 		MapLayer meta_layer = map.getLayers().get("meta");
 		MapObject player_start = meta_layer.getObjects().get("player-start");
 
-		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class), player_start.getProperties().get("y", Float.class)));
+		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth(), player_start.getProperties().get("y", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth()));
 
 		findInteractionElements();
 	}
