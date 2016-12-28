@@ -17,8 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class World {
-	private List<InteractionElement> interactionElements = new ArrayList<>();
-
 	private TiledMap map;
 	private Player player;
 	private TiledMapTileLayer walk_layer;
@@ -130,20 +128,15 @@ public class World {
 			}
 			e_.update(deltaTime);
 		}
-		checkForInteraction();
+
+		entities.stream().filter(
+				(Entity e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
+				.forEach((Entity e) -> e.collide(this, player));
 	}
 
-	/**
-	 * Checks, if there are any interactionElements close to the player & calls the respective interact methods.
- 	 */
-	public void checkForInteraction() {
-		interactionElements.stream().filter(
-			(InteractionElement e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
-			.forEach(InteractionElement::interact);
-	}
 
-	public void addIntercationElement(InteractionElement ie) {
-		interactionElements.add(ie);
+	public void addIntercationElement(Entity e) {
+		entities.add(e);
 	}
 
 	public void findInteractionElements() {
@@ -188,6 +181,13 @@ public class World {
 			}
 		}
 		return back;
+	}
+
+	public void remove(Entity entity) {
+		if (entity == player) {
+			//TODO game over
+		}
+		this.entities.remove(entity);
 	}
 
 	private static final Map<String, Method> script_methods = new HashMap<>();
