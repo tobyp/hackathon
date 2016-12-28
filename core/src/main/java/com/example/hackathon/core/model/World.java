@@ -17,6 +17,7 @@ public class World {
 
 	private TiledMap map;
 	private Player player;
+	private TiledMapTileLayer walk_layer;
 
 	private List<Entity> entities;
 
@@ -24,14 +25,15 @@ public class World {
 	int[] CLICK_BUTTON_ON_TILE_IDS = { 33, 34, 55, 56 };
 	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
 
-	private static boolean isWalkable(int cellType) {
-		return cellType != 0;
+	private boolean isWalkable(int x, int y) {
+		return walk_layer.getCell(x, y).getTile().getId() != 0;
 	}
 
 	public World(TiledMap map) {
 		this.map = map;
 		MapLayer meta_layer = map.getLayers().get("meta");
 		MapObject player_start = meta_layer.getObjects().get("player-start");
+		walk_layer = (TiledMapTileLayer)map.getLayers().get("walk");
 
 		this.player = new Player();
 		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth(), player_start.getProperties().get("y", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth()));
