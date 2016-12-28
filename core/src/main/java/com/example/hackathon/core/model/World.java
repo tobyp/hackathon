@@ -1,5 +1,7 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -13,32 +15,37 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class World {
 	private TiledMap map;
 	private Player player;
-	private TiledMapTileLayer walk_layer;
-	private TiledMapTileLayer meta_layer;
+	private TiledMapTileLayer walkLayer;
+	private MapLayer metaLayer;
 
 	private List<Entity> entities;
+
+	public float getWorldTime() {
+		return worldTime;
+	}
+
+	private float worldTime;
 
 	public static final float INTERACTION_RADIUS = 1;
 	int[] CLICK_BUTTON_ON_TILE_IDS = { 33, 34, 55, 56 };
 	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
 
 	private boolean isWalkable(int x, int y) {
-		return walk_layer.getCell(x, y).getTile().getId() != 1;
+		return walkLayer.getCell(x, y).getTile().getId() != 1;
 	}
 
 	public World(TiledMap map) {
 		this.map = map;
-		meta_layer = (TiledMapTileLayer)map.getLayers().get("meta");
-		walk_layer = (TiledMapTileLayer)map.getLayers().get("walk");
+		metaLayer = map.getLayers().get("meta");
+		walkLayer = (TiledMapTileLayer)map.getLayers().get("walk");
 
 		this.player = new Player();
-		MapObject player_start = meta_layer.getObjects().get("player-start");
+		MapObject player_start = metaLayer.getObjects().get("player-start");
 		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth(), player_start.getProperties().get("y", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth()));
 
 		this.entities = new ArrayList<>();
@@ -67,6 +74,7 @@ public class World {
 	}
 
 	public void update(float deltaTime) {
+		worldTime += deltaTime;
 		for (Entity e_ : entities) {
 			if (e_ instanceof DynamicEntity) {
 				DynamicEntity e = (DynamicEntity)e_;
@@ -87,7 +95,7 @@ public class World {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
 						int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y / 2);
 						for (int j = (int) (e.getLocation().y - e.getSize().y / 2); j < maxJ; j++) {
-							Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
+							Logger.getAnonymousLogger().info("id: " + walkLayer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(i, j)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
@@ -113,7 +121,7 @@ public class World {
 						// Test if this x coordinate overlaps somewhere in the height of the robot
 						int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x / 2);
 						for (int j = (int) (e.getLocation().x - e.getSize().x / 2); j < maxJ; j++) {
-							Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
+							Logger.getAnonymousLogger().info("id: " + walkLayer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
 							if (!isWalkable(j, i)) {
 								// Set the coordinate to the border one step backwards
 								// because we have a collision.
@@ -201,7 +209,7 @@ public class World {
 		}
 	}
 
-	public void runScript(String script) {
+	public void runScript(int cell_x, int cell_y, String script) {
 		Logger logger = Logger.getLogger("script");
 		String[] lines = script.split(";");
 		for (String line : lines) {
@@ -225,19 +233,21 @@ public class World {
 				return;
 			}
 
-			Object[] params = new Object[m.getParameterCount()];
+			Object[] params = new Object[m.getParameterCount() + 2];
+			params[0] = cell_x;
+			params[1] = cell_y;
 			Class<?>[] param_types = m.getParameterTypes();
 			for (int i=0; i<m.getParameterCount(); ++i) {
 				Class<?> c = param_types[i];
 				String p = param_strings[i];
 				if (c == Float.class) {
-					params[i] = Float.parseFloat(p);
+					params[i+2] = Float.parseFloat(p);
 				}
 				else if (c == Integer.class) {
-					params[i] = Integer.parseInt(p);
+					params[i+2] = Integer.parseInt(p);
 				}
 				else if (c == String.class) {
-					params[i] = p;
+					params[i+2] = p;
 				}
 				else {
 					logger.severe("Unsupported argument type " + c.toString());
@@ -254,7 +264,16 @@ public class World {
 	}
 
 	@ScriptCommand
-	public void teleport(int x, int y) {
+	public void teleport(int cell_x, int cell_y,, int x, int y) {
 		player.setLocation(new Vector2(x, y));
+	}
+
+	@ScriptCommand
+	public void battery(int cell_x, int cell_y, float capacity, float consumption) {
+		Upgrade upgrade = new Upgrade(capacity, consumption);
+		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
+		UpgradeItem ue = new UpgradeItem(batterySprite, upgrade);
+		ue.getLocation().set(cell_x + 0.5f, cell_y + 0.5f);
+		entities.add(ue);
 	}
 }

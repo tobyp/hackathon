@@ -1,11 +1,12 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 /**
  * Created by tobyp on 12/28/16.
  */
-public class Entity {
+public abstract class Entity {
     protected int collision_priority = 0;
     protected Vector2 location = new Vector2();
     protected Vector2 size = new Vector2(1, 1);
@@ -35,11 +36,7 @@ public class Entity {
         this.rotation = rotation;
     }
 
-    public void update(float deltaTime) {
-
-    }
-
-    public void collide(World world, Entity entity) {
-
-    }
+    public void update(World world, float deltaTime) { }
+    public abstract void collide(World world, Entity entity);
+    public void render(World world, SpriteBatch batch) { }
 }
