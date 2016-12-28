@@ -18,8 +18,8 @@ public class World {
 	private Player player = new Player();
 
 	public static final float INTERACTION_RADIUS = 1;
-	Integer[] CLICK_BUTTON_ON_TILE_IDS = {33,34,55,56};
-	Integer[] CLICK_BUTTON_OFF_TILE_IDS = {35,36,57,58};
+	int[] CLICK_BUTTON_ON_TILE_IDS = { 33, 34, 55, 56 };
+	int[] CLICK_BUTTON_OFF_TILE_IDS = { 35, 36, 57, 58 };
 
 	private static boolean isWalkable(int cellType) {
 		return cellType == 2;
