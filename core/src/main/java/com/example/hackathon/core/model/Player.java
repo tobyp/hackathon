@@ -1,5 +1,7 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,8 @@ public class Player extends Robot {
 	private int batteryMax;
 	// how much battery is consumed per timestep
 	private int consumption;
+
+	private Vector2 target;
 
 	private List<Upgrade> upgrades;
 
@@ -72,4 +76,6 @@ public class Player extends Robot {
 	public void setConsumption(int consumption) {
 		this.consumption = consumption;
 	}
+
+	public void update(float deltaTime) { }
 }
