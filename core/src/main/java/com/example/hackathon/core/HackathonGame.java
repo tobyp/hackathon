@@ -43,6 +43,8 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private final float TILES_PER_SCREEN_Y = 10f;
 	private final float CAMERA_MOVE_MARGIN = 0.05f;
 
+	public static boolean isGameOver = false;
+
 	/**
 	 * If the player movement can be set by a mouse movement.
 	 * false if it is set by the keyboard.
@@ -122,6 +124,16 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		batch.begin();
 		tew_sprite.draw(batch);
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
+
+		if (isGameOver) {
+			Gdx.gl.glClearColor(0, 0, 0, 0);
+			Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+			font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+			font.draw(batch, "Game Over", 10, 40);
+			// TODO warten
+			isGameOver = false;
+		}
+
 		batch.end();
 	}
 

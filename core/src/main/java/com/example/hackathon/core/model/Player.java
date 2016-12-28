@@ -1,6 +1,7 @@
 package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.math.Vector2;
+import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class Player extends Robot {
 	public void setBattery(int battery) {
 		if (battery < 0) {
 			this.battery = 0;
-			// TODO dead?
+			HackathonGame.isGameOver = true;
 		} else if (battery > batteryMax) {
 			this.battery = batteryMax;
 		} else {
@@ -61,7 +62,7 @@ public class Player extends Robot {
 
 	public void setBatteryMax(int batteryMax) {
 		if (batteryMax <= 0) {
-			// TODO dead?
+			HackathonGame.isGameOver = true;
 		}
 		this.batteryMax = batteryMax;
 	}
