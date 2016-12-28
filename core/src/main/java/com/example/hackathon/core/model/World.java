@@ -31,6 +31,8 @@ public class World {
 		MapObject player_start = meta_layer.getObjects().get("player-start");
 
 		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class), player_start.getProperties().get("y", Float.class)));
+
+		findInteractionElements();
 	}
 
 	public TiledMap getMap() {
@@ -146,8 +148,15 @@ public class World {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
-					// ClickButton cb = new ClickButton(new Vector2(x+1, ))
-					// add Button to matching location (and look, that it is not added multiple times (only on upper left tile?)
+					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
+					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
+							true, clickButtonOnTiles, clickButtonOffTiles, cells);
+					addIntercationElement(cb);
+				} else if (CLICK_BUTTON_OFF_TILE_IDS[0] == getCellTileId(x,y)) {
+					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
+					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
+							false, clickButtonOnTiles, clickButtonOffTiles, cells);
+					addIntercationElement(cb);
 				}
 			}
 		}
@@ -157,6 +166,17 @@ public class World {
 		List<TiledMapTile> back = new ArrayList<>();
 		for (int i : ids) {
 			back.add(map.getTileSets().getTile(i));
+		}
+		return back;
+	}
+
+	public List<TiledMapTileLayer.Cell> getCellsByCoords(int x, int y, int radius) {
+		List<TiledMapTileLayer.Cell> back = new ArrayList<>();
+		for (int i = 0; i < radius; i++) {
+			for (int j = 0; j < radius; j++) {
+				// go for x to the right and for y down
+				back.add(((TiledMapTileLayer)map.getLayers().get(0)).getCell(x+i, y-j));
+			}
 		}
 		return back;
 	}
