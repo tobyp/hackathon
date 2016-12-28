@@ -6,7 +6,7 @@ import com.example.hackathon.core.HackathonGame;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends Robot {
+public class Player extends DynamicEntity {
 	// how much energy is still left in the battery, between 0 and batteryMax
 	private float battery;
 	// how much energy the battery can hold

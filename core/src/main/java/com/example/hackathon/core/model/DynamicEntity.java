@@ -5,7 +5,8 @@ import com.badlogic.gdx.math.Vector2;
 /**
  * Base class for the players robot and enemy robots
  */
-public class Robot extends Entity {
+public class DynamicEntity extends Entity {
+    protected Vector2 velocity = new Vector2();
     /**
      * The normalized direction in that the robot is looking.
      */
@@ -28,10 +29,13 @@ public class Robot extends Entity {
         direction = v;
     }
 
-    @Override
-	public void setVelocity(Vector2 v) {
+    public void setVelocity(Vector2 v) {
 		velocity = v;
 		if (v.len2() > 0.1)
 			direction = v.nor();
 	}
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
 }
