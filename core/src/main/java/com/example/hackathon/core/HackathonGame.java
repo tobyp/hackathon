@@ -1,6 +1,5 @@
 package com.example.hackathon.core;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,12 +15,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import com.example.hackathon.core.model.Entity;
-import com.example.hackathon.core.model.Robot;
 import com.example.hackathon.core.model.World;
 
 public class HackathonGame implements ApplicationListener, InputProcessor {
@@ -52,7 +49,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		tew_texture = new Texture("tew.png");
 		tew_sprite = new Sprite(tew_texture, 128, 128);
-		tew_sprite.setScale(0.5f);
+		tew_sprite.setScale(1.f);
 
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx");
@@ -81,15 +78,6 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		// Update logic
 		world.update(deltaTime);
-
-		/*Vector2 displacement = world.getPlayer().getVelocity().cpy().scl(deltaTime);
-		float move_margin = CAMERA_MOVE_MARGIN * Gdx.graphics.getWidth();
-		if (Gdx.input.getX() < move_margin || Gdx.input.getY() < move_margin
-				|| Gdx.input.getX() > Gdx.graphics.getWidth() - move_margin
-				|| Gdx.input.getY() > Gdx.graphics.getHeight() - move_margin) {
-			camera.translate(displacement);
-		}*/
-
 
 		// Render
 		Gdx.gl.glClearColor(0, 0, 0, 0);
