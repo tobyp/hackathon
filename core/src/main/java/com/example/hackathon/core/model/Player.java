@@ -78,4 +78,12 @@ public class Player extends Robot {
 	}
 
 	public void update(float deltaTime) { }
+
+	public Vector2 getTarget() {
+		return target;
+	}
+
+	public void setTarget(Vector2 target) {
+		this.target = target;
+	}
 }
