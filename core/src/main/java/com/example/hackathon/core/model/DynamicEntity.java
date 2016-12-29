@@ -98,7 +98,6 @@ public class DynamicEntity extends Entity {
 					// because we have a collision.
 					// Add step if it is -1, otherwise do nothing (because the wall tile ends at i + 1)
 					float newDistance = i - (step - 1) / 2 - prevMid.x;
-					System.out.println("Step " + step + "; distance " + distance + "; newDistance" + newDistance);
 					// Can't touch it…
 					if (step == 1) {
 						if (newDistance < 0 || distance < newDistance)
