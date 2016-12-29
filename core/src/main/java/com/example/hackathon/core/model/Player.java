@@ -3,12 +3,14 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class Player extends DynamicEntity {
 	private static final float PLAYER_SPEED = 1.f;

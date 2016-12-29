@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -24,9 +25,9 @@ public class World {
 	private TiledMapTileLayer walkLayer;
 	private TiledMapTileLayer buttonLayer;
 	private MapLayer metaLayer;
-	private float tileSize;
 
 	private List<Entity> entities;
+	private Map<String, Entity> entity_names;
 
 	private float worldTime;
 
@@ -43,9 +44,10 @@ public class World {
 	 */
 	public Vector2 getObjectLocation(String name) {
 		MapObject obj = metaLayer.getObjects().get(name);
-		float x = obj.getProperties().get("x", Float.class) / tileSize + Float.parseFloat(obj.getProperties().get("width", String.class)) / 2;
-		float y = obj.getProperties().get("y", Float.class) / tileSize + Float.parseFloat(obj.getProperties().get("height", String.class)) / 2;
-		return new Vector2(x, y);
+		RectangleMapObject rmo = (RectangleMapObject)obj;
+		Vector2 center = new Vector2();
+		rmo.getRectangle().getCenter(center);
+		return center;
 	}
 
 	public World(TiledMap map) {
@@ -53,7 +55,6 @@ public class World {
 		metaLayer = map.getLayers().get("meta");
 		walkLayer = (TiledMapTileLayer)map.getLayers().get("walk");
 		buttonLayer = (TiledMapTileLayer)map.getLayers().get("buttons");
-		tileSize=  walkLayer.getTileWidth();
 
 		clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
@@ -209,7 +210,7 @@ public class World {
 			try {
 				m.invoke(this, params);
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Script failed", e);
+				logger.log(Level.SEVERE, "Script failed: " + script, e);
 			}
 		}
 	}
@@ -223,38 +224,62 @@ public class World {
 	public void battery(MapObject mo, float capacity, float consumption) {
 		Upgrade upgrade = new Upgrade(capacity, consumption);
 		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
-		int cell_x = (int)(mo.getProperties().get("x", Float.class) / tileSize);
-		int cell_y = (int)(mo.getProperties().get("y", Float.class) / tileSize);
+		int cell_x = (int)(mo.getProperties().get("x", Float.class).floatValue());
+		int cell_y = (int)(mo.getProperties().get("y", Float.class).floatValue());
 
 		UpgradeItem ue = new UpgradeItem(new Vector2(cell_x + 0.5f, cell_y + 0.5f), batterySprite, upgrade);
 		entities.add(ue);
 		Logger.getLogger("script").info("Spawned Battery at (" + cell_x + ", " + cell_y + ") cap=" + capacity + ", drain=" + consumption);
 	}
+
 	@ScriptCommand
-	public void wallToggle(MapObject mo, String wall_name) {
+	public void barrierToggle(MapObject mo, String wall_name) {
 
 	}
 
 	@ScriptCommand
-	public void wall(MapObject mo, boolean on) {
-
+	public void barrier(MapObject mo, boolean on, float toggle_period) {
+		/*RectangleMapObject rmo = (RectangleMapObject)mo;
+		Vector2 center = new Vector2(), size = new Vector2();
+		rmo.getRectangle().getCenter(center);
+		rmo.getRectangle().getSize(size);
+		Barrier b = new Barrier(center, size, on, toggle_period);
+		entities.add(b);
+		Logger.getLogger("script").info("Spawned barrier at " + center);*/
 	}
 
 	@ScriptCommand
 	public void button(MapObject mo, boolean on) {
-		int cell_x = (int)(mo.getProperties().get("x", Float.class) / tileSize);
-		int cell_y = (int)(mo.getProperties().get("y", Float.class) / tileSize);
+		RectangleMapObject rmo = (RectangleMapObject)mo;
+		Vector2 center = new Vector2(), size = new Vector2();
+		rmo.getRectangle().getCenter(center);
+		rmo.getRectangle().getSize(size);
 
 		List<TiledMapTileLayer.Cell> cells = new ArrayList<>();
-		for (int y = cell_y + 1; y > cell_y - 1; y--) {
-			for (int x = cell_x; x < cell_x + 2; x++) {
-				cells.add(buttonLayer.getCell(x, y));
+		for (int y = (int)rmo.getRectangle().getY() + 1; y > (int)rmo.getRectangle().getY() - 1; y--) {
+			for (int x = (int)rmo.getRectangle().getX(); x < (int)rmo.getRectangle().getX() + 2; x++) {
+				TiledMapTileLayer.Cell cell = buttonLayer.getCell(x, y);
+				cells.add(cell);
 			}
 		}
-		ButtonElement button = new ClickButton(new Vector2(cell_x + 1, cell_y + 1), on, clickButtonOnTiles, clickButtonOffTiles, cells);
-		button.getCollisionSize().set(0.5f, 0.5f);
+		ButtonElement button = new ClickButton(center, on, clickButtonOnTiles, clickButtonOffTiles, cells);
 		button.updateTiles();
 		entities.add(button);
-		Logger.getLogger("script").info("Spawned button at (" + cell_x + ", " + cell_y + ") state="+on);
+		Logger.getLogger("script").info("Spawned button at " + center + " state="+on);
+	}
+
+	@ScriptCommand
+	public void coil(MapObject mo, boolean on) {
+
+	}
+
+	@ScriptCommand
+	public void coilOn(MapObject mo, boolean on) {
+
+	}
+
+	@ScriptCommand
+	public void mob(MapObject mo) {
+
 	}
 }
