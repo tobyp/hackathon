@@ -12,27 +12,19 @@ import java.util.List;
 
 public class ClickButton extends ButtonElement {
 
-    public ClickButton(Vector2 loc, boolean initState, List<TiledMapTile> onTiles,
+    public ClickButton(Vector2 location, boolean initState, List<TiledMapTile> onTiles,
 					   List<TiledMapTile> offTiles, List<TiledMapTileLayer.Cell> coveredCells) {
-    	isActivated = initState;
-		location = loc;
+		super(location, new Vector2(2, 2), new Vector2(1, 1));
 
+		this.isActivated = initState;
 		this.onTiles = onTiles;
 		this.offTiles = offTiles;
 		this.coveredCells = coveredCells;
-		this.cooldown = 0;
     }
 
 	@Override
-	public void update(World world, float deltaTime) {
-		cooldown--;
-	}
-
-	@Override
 	public void collide(World world, Entity entity) {
-    	if (cooldown <= 0) {
-			isActivated = !isActivated;
-			cooldown = 10;
-		}
+    	isActivated = !isActivated;
+    	updateTiles();
 	}
 }

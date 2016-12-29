@@ -2,6 +2,7 @@ package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -9,10 +10,35 @@ import com.badlogic.gdx.math.Vector2;
  */
 public abstract class Entity {
     protected int collision_priority = 0;
-    protected Vector2 location = new Vector2();
-    protected Vector2 size = new Vector2(1, 1);
+    protected final Vector2 location = new Vector2();
+    protected final Vector2 size = new Vector2(1, 1);
+    protected final Vector2 collisionSize = new Vector2(1, 1);
     protected float rotation = 0.f;
     private boolean destroyed = false;
+
+    public Entity(Vector2 location) {
+        this.location.set(location);
+    }
+
+    public Entity(Vector2 location, Vector2 size) {
+        this.location.set(location);
+        this.size.set(size);
+        this.collisionSize.set(size);
+    }
+
+    public Entity(Vector2 location, Vector2 size, Vector2 collisionSize) {
+        this.location.set(location);
+        this.size.set(size);
+        this.collisionSize.set(collisionSize);
+    }
+
+    public Vector2 getCollisionSize() {
+        return collisionSize;
+    }
+
+    public Rectangle getCollisionRect() {
+        return new Rectangle(location.x - collisionSize.x / 2, location.y - collisionSize.y / 2, collisionSize.x, collisionSize.y);
+    }
 
     public boolean isDestroyed() {
         return destroyed;
@@ -22,16 +48,8 @@ public abstract class Entity {
         return location;
     }
 
-    public void setLocation(Vector2 location) {
-        this.location = location;
-    }
-
     public Vector2 getSize() {
         return size;
-    }
-
-    public void setSize(Vector2 size) {
-        this.size = size;
     }
 
     public float getRotation() {
@@ -43,7 +61,8 @@ public abstract class Entity {
     }
 
     public void update(World world, float deltaTime) { }
-    public abstract void collide(World world, Entity entity);
+    public void collide(World world, Entity entity) { }
+    public void uncollide(World world, Entity entity) { }
     public void render(World world, SpriteBatch batch) { }
 
     public void destroy() {

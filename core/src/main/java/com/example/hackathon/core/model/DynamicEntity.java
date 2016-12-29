@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.Locale;
+
 /**
  * Base class for the players robot and enemy robots
  */
@@ -17,12 +19,13 @@ public class DynamicEntity extends Entity {
      */
     protected Vector2 direction = Vector2.Y;
 
-    public DynamicEntity(Sprite sprite) {
+    public DynamicEntity(Vector2 location, Vector2 size, Vector2 collisionSize, Sprite sprite) {
+        super(location, size, collisionSize);
     	this.sprite = sprite;
     }
 
-	public DynamicEntity(Texture texture, int srcX, int srcY, int srcW, int srcH) {
-		this(new Sprite(texture, 128, 128));
+	public DynamicEntity(Vector2 location, Vector2 size, Vector2 collisionSize, Texture texture, int srcX, int srcY, int srcW, int srcH) {
+		this(location, size, collisionSize, new Sprite(texture, srcX, srcY, srcW, srcH));
 	}
 
     public Movement getDiscreteDirection() {

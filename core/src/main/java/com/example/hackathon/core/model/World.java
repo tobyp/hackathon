@@ -7,15 +7,14 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 import com.example.hackathon.core.ScriptCommand;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +22,9 @@ public class World {
 	private TiledMap map;
 	private Player player;
 	private TiledMapTileLayer walkLayer;
+	private TiledMapTileLayer buttonLayer;
 	private MapLayer metaLayer;
+	private float tileSize;
 
 	private List<Entity> entities;
 
@@ -33,35 +34,39 @@ public class World {
 
 	private float worldTime;
 
-	public static final float INTERACTION_RADIUS = 1;
-	int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
-	int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
+	public static final int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
+	public static final int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
+	private List<TiledMapTile> clickButtonOnTiles;
+	private List<TiledMapTile> clickButtonOffTiles;
 
 	private boolean isWalkable(int x, int y) {
-		return walkLayer.getCell(x, y).getTile().getId() != 1;
+		TiledMapTileLayer.Cell cell = walkLayer.getCell(x, y);
+		if (cell == null) return false;
+		return cell.getTile().getId() != 1;
 	}
 
 	public World(TiledMap map) {
 		this.map = map;
 		metaLayer = map.getLayers().get("meta");
 		walkLayer = (TiledMapTileLayer)map.getLayers().get("walk");
+		buttonLayer = (TiledMapTileLayer)map.getLayers().get("buttons");
+		tileSize=  walkLayer.getTileWidth();
 
-		this.player = new Player();
-		MapObject player_start = metaLayer.getObjects().get("player-start");
-		player.setLocation(new Vector2(player_start.getProperties().get("x", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth(), player_start.getProperties().get("y", Float.class) / ((TiledMapTileLayer) map.getLayers().get(0)).getTileWidth()));
+		clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
+		clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
+
+		MapObject player_start_mo = metaLayer.getObjects().get("player-start");
+		Vector2 player_start = new Vector2(player_start_mo.getProperties().get("x", Float.class) / tileSize, player_start_mo.getProperties().get("y", Float.class) / tileSize);
+		this.player = new Player(player_start);
 
 		this.entities = new ArrayList<>();
 		entities.add(player);
 
 		for (MapObject mo : metaLayer.getObjects()) {
 			if (mo.getProperties().containsKey("on-load")) {
-				int x = -1, y = -1;
-				if (mo.getProperties().containsKey("x")) x = (int)(mo.getProperties().get("x", Float.class).floatValue() / 32.f);
-				if (mo.getProperties().containsKey("y")) y = (int)(mo.getProperties().get("y", Float.class).floatValue() / 32.f);
-				runScript(x, y, mo.getProperties().get("on-load", String.class));
+				runScript(mo, mo.getProperties().get("on-load", String.class));
 			}
 		}
-		findEntitys();
 	}
 
 	public TiledMap getMap() {
@@ -86,6 +91,8 @@ public class World {
 	public List<Entity> getEntities() {
 		return entities;
 	}
+
+	private Set<Entity> collision_cache = new HashSet<Entity>();
 
 	public void update(float deltaTime) {
 		worldTime += deltaTime;
@@ -156,15 +163,20 @@ public class World {
 			e_.update(this, deltaTime);
 		}
 
-
-		entities.stream().filter(
-				(Entity e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
-				.forEach((Entity e) -> {
-					if (e.collision_priority > player.collision_priority) {
-						e.collide(this, player);
+		Rectangle player_rect = player.getCollisionRect();
+		entities.stream().forEach((Entity e) -> {
+					Rectangle entity_rect = e.getCollisionRect();
+					boolean collided = player_rect.overlaps(entity_rect);
+					boolean precollided = collision_cache.contains(e);
+					Entity higher_prio = e.collision_priority > player.collision_priority ? e : player;
+					Entity lower_prio = e.collision_priority > player.collision_priority ? player : e;
+					if (collided && !precollided) {
+						higher_prio.collide(this, lower_prio);
+						collision_cache.add(e);
 					}
-					else {
-						player.collide(this, e);
+					else if (!collided && precollided) {
+						higher_prio.uncollide(this, lower_prio);
+						collision_cache.remove(e);
 					}
 				});
 
@@ -172,8 +184,6 @@ public class World {
 			HackathonGame.isGameOver = true;
 		}
 		entities.removeIf((Entity e) -> e.isDestroyed());
-
-		entities.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
 	}
 
 
@@ -181,48 +191,10 @@ public class World {
 		entities.add(e);
 	}
 
-	public void findEntitys() {
-		// find ClickButtons and add them to the InteractionElements
-		List<TiledMapTile> clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
-		List<TiledMapTile> clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
-
-		int width = ((TiledMapTileLayer) map.getLayers().get("ground")).getWidth();
-		int height = ((TiledMapTileLayer) map.getLayers().get("ground")).getHeight();
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
-					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
-					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
-							true, clickButtonOnTiles, clickButtonOffTiles, cells);
-					addEntity(cb);
-					Logger.getAnonymousLogger().info("!!!!!!!!!!! on button set !!!!!!!!!!!!");
-				} else if (CLICK_BUTTON_OFF_TILE_IDS[0] == getCellTileId(x,y)) {
-					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
-					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
-							false, clickButtonOnTiles, clickButtonOffTiles, cells);
-					addEntity(cb);
-					Logger.getAnonymousLogger().info("!!!!!!!!!!! off button set !!!!!!!!!!!!");
-				}
-			}
-		}
-	}
-
 	public List<TiledMapTile> getTilesByIds(int[] ids) {
 		List<TiledMapTile> back = new ArrayList<>();
 		for (int i : ids) {
 			back.add(map.getTileSets().getTile(i));
-		}
-		return back;
-	}
-
-	public List<TiledMapTileLayer.Cell> getCellsByCoords(int x, int y, int radius) {
-		List<TiledMapTileLayer.Cell> back = new ArrayList<>();
-		for (int j = 0; j < radius; j++) {
-			for (int i = 0; i < radius; i++) {
-				// go for x to the right and for y down
-				back.add(((TiledMapTileLayer)map.getLayers().get("ground")).getCell(x+i, y-j));
-			}
 		}
 		return back;
 	}
@@ -238,7 +210,7 @@ public class World {
 		}
 	}
 
-	public void runScript(int cell_x, int cell_y, String script) {
+	public void runScript(MapObject mo, String script) {
 		Logger logger = Logger.getLogger("script");
 		String[] lines = script.split(";");
 		for (String line : lines) {
@@ -257,26 +229,28 @@ public class World {
 				param_strings = new String[0];
 			}
 
-			if (param_strings.length + 2 != m.getParameterCount()) {
+			if (param_strings.length + 1 != m.getParameterCount()) {
 				logger.severe("Command " + cmd_args[0] + " requires " + (m.getParameterCount() - 2) + " parameters.");
 				return;
 			}
 
 			Object[] params = new Object[m.getParameterCount()];
-			params[0] = cell_x;
-			params[1] = cell_y;
+			params[0] = mo;
 			Class<?>[] param_types = m.getParameterTypes();
-			for (int i=0; i < m.getParameterCount() - 2; i++) {
-				Class<?> c = param_types[i+2];
-				String p = param_strings[i];
+			for (int i=1; i < m.getParameterCount(); i++) {
+				Class<?> c = param_types[i];
+				String p = param_strings[i-1];
 				if (c == float.class) {
-					params[i+2] = Float.parseFloat(p);
+					params[i] = Float.parseFloat(p);
 				}
 				else if (c == int.class) {
-					params[i+2] = Integer.parseInt(p);
+					params[i] = Integer.parseInt(p);
 				}
 				else if (c == String.class) {
-					params[i+2] = p;
+					params[i] = p;
+				}
+				else if (c == boolean.class) {
+					params[i] = (p.equalsIgnoreCase("true") || p.equalsIgnoreCase("on") || p.equalsIgnoreCase("yes") || p.equalsIgnoreCase("1"));
 				}
 				else {
 					logger.severe("Unsupported argument type " + c.toString());
@@ -293,17 +267,46 @@ public class World {
 	}
 
 	@ScriptCommand
-	public void teleport(int cell_x, int cell_y, int x, int y) {
-		player.setLocation(new Vector2(x, y));
+	public void teleport(MapObject mo, int x, int y) {
+		player.getLocation().set(x, y);
 	}
 
 	@ScriptCommand
-	public void battery(int cell_x, int cell_y, float capacity, float consumption) {
+	public void battery(MapObject mo, float capacity, float consumption) {
 		Upgrade upgrade = new Upgrade(capacity, consumption);
 		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
-		UpgradeItem ue = new UpgradeItem(batterySprite, upgrade);
-		ue.getLocation().set(cell_x + 0.5f, cell_y + 0.5f);
+		int cell_x = (int)(mo.getProperties().get("x", Float.class).floatValue() / tileSize);
+		int cell_y = (int)(mo.getProperties().get("y", Float.class).floatValue() / tileSize);
+
+		UpgradeItem ue = new UpgradeItem(new Vector2(cell_x + 0.5f, cell_y + 0.5f), batterySprite, upgrade);
 		entities.add(ue);
 		Logger.getLogger("script").info("Spawned Battery at (" + cell_x + ", " + cell_y + ") cap=" + capacity + ", drain=" + consumption);
+	}
+	@ScriptCommand
+	public void wallToggle(MapObject mo, String wall_name) {
+
+	}
+
+	@ScriptCommand
+	public void wall(MapObject mo, boolean on) {
+
+	}
+
+	@ScriptCommand
+	public void button(MapObject mo, boolean on) {
+		int cell_x = (int)(mo.getProperties().get("x", Float.class).floatValue() / tileSize);
+		int cell_y = (int)(mo.getProperties().get("y", Float.class).floatValue() / tileSize);
+
+		List<TiledMapTileLayer.Cell> cells = new ArrayList<>();
+		for (int y = cell_y + 1; y > cell_y - 1; y--) {
+			for (int x = cell_x; x < cell_x + 2; x++) {
+				cells.add(buttonLayer.getCell(x, y));
+			}
+		}
+		ButtonElement button = new ClickButton(new Vector2(cell_x + 1, cell_y + 1), on, clickButtonOnTiles, clickButtonOffTiles, cells);
+		button.getCollisionSize().set(0.5f, 0.5f);
+		button.updateTiles();
+		entities.add(button);
+		Logger.getLogger("script").info("Spawned button at (" + cell_x + ", " + cell_y + ") state="+on);
 	}
 }

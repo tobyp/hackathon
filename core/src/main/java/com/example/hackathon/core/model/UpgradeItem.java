@@ -3,6 +3,7 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.logging.Logger;
 
@@ -14,8 +15,8 @@ public class UpgradeItem extends DynamicEntity {
 
     private Upgrade upgrade;
 
-    public UpgradeItem(Sprite sprite, Upgrade upgrade) {
-        super(sprite);
+    public UpgradeItem(Vector2 location, Sprite sprite, Upgrade upgrade) {
+        super(location, new Vector2(1, 1), new Vector2(0.5f, 0.5f), sprite);
         this.upgrade = upgrade;
         this.collision_priority = COLLISION_PRIORITY_ITEM;
     }

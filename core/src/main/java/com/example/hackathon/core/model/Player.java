@@ -10,6 +10,7 @@ import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.Random;
 
@@ -30,13 +31,13 @@ public class Player extends DynamicEntity {
 	private Sound collideSound = Gdx.audio.newSound(Gdx.files.internal("sound/donk.wav"));
 	private Random rand = new Random();
 
-	public Player() {
-		super(new Texture("tew.png"), 0, 0, 128, 128);
+	public Player(Vector2 location) {
+		super(location, new Vector2(2, 2), new Vector2(2, 2), new Texture("tew.png"), 0, 0, 128, 128);
 		batteryMax = 1.f;
 		battery = batteryMax;
 		consumption = 0.0f;
 		upgrades = new ArrayList<>();
-		size = new Vector2(2, 2);
+		size.set(2, 2);
 	}
 
 	public void addUpgrade(Upgrade u) {

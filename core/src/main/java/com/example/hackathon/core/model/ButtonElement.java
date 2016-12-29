@@ -2,6 +2,7 @@ package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,17 +15,19 @@ public abstract class ButtonElement extends Entity {
 
 	public boolean isActivated;
 
-	protected int cooldown;
+	private static final int COLLISION_PRIORITY_BUTTON = 1;
+
+	public ButtonElement(Vector2 location, Vector2 size, Vector2 collisionSize) {
+		super(location, size, collisionSize);
+		collision_priority = COLLISION_PRIORITY_BUTTON;
+	}
 
 	public void updateTiles() {
-		if (isActivated) {
-			for (TiledMapTileLayer.Cell cell : coveredCells) {
-				cell.setTile(onTiles.get(coveredCells.indexOf(cell)));
-			}
-		} else {
-			for (TiledMapTileLayer.Cell cell : coveredCells) {
-				cell.setTile(offTiles.get(coveredCells.indexOf(cell)));
-			}
+		List<TiledMapTile> target_tiles = isActivated ? onTiles : offTiles;
+		int i=0;
+		for (TiledMapTileLayer.Cell cell : coveredCells) {
+			cell.setTile(target_tiles.get(i));
+			i++;
 		}
 	}
 }
