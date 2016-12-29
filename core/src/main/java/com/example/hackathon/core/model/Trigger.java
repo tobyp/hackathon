@@ -2,9 +2,6 @@ package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.math.Vector2;
 
-/**
- * Created by tobyp on 12/29/16.
- */
 public class Trigger extends Entity {
     protected String onEnter, onExit;
 
@@ -12,6 +9,7 @@ public class Trigger extends Entity {
         super(location, size);
         this.onEnter = onEnter;
         this.onExit = onExit;
+        collision_priority = 1;
     }
 
     @Override
