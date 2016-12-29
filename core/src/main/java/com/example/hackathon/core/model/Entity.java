@@ -11,6 +11,11 @@ public abstract class Entity {
     protected Vector2 location = new Vector2();
     protected Vector2 size = new Vector2(1, 1);
     protected float rotation = 0.f;
+    private boolean destroyed = false;
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
 
     public Vector2 getLocation() {
         return location;
@@ -39,4 +44,8 @@ public abstract class Entity {
     public void update(World world, float deltaTime) { }
     public abstract void collide(World world, Entity entity);
     public void render(World world, SpriteBatch batch) { }
+
+    public void destroy() {
+        this.destroyed = true;
+    }
 }

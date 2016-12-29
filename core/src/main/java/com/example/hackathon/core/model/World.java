@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class World {
@@ -51,6 +52,15 @@ public class World {
 
 		this.entities = new ArrayList<>();
 		entities.add(player);
+
+		for (MapObject mo : metaLayer.getObjects()) {
+			if (mo.getProperties().containsKey("on-load")) {
+				int x = -1, y = -1;
+				if (mo.getProperties().containsKey("x")) x = (int)(mo.getProperties().get("x", Float.class).floatValue() / 32.f);
+				if (mo.getProperties().containsKey("y")) y = (int)(mo.getProperties().get("y", Float.class).floatValue() / 32.f);
+				runScript(x, y, mo.getProperties().get("on-load", String.class));
+			}
+		}
 		findEntitys();
 	}
 
@@ -141,9 +151,22 @@ public class World {
 			e_.update(this, deltaTime);
 		}
 
+
 		entities.stream().filter(
 				(Entity e) -> e.location.dst(player.getLocation()) <= INTERACTION_RADIUS)
-				.forEach((Entity e) -> e.collide(this, player));
+				.forEach((Entity e) -> {
+					if (e.collision_priority > player.collision_priority) {
+						e.collide(this, player);
+					}
+					else {
+						player.collide(this, e);
+					}
+				});
+
+		if (player.isDestroyed()) {
+			HackathonGame.isGameOver = true;
+		}
+		entities.removeIf((Entity e) -> e.isDestroyed());
 
 		entities.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
 	}
@@ -163,7 +186,6 @@ public class World {
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				Logger.getAnonymousLogger().info("x: " + x + " y: " + y + " id: " + getCellTileId(x,y));
 				if (CLICK_BUTTON_ON_TILE_IDS[0] == getCellTileId(x,y)) {
 					List<TiledMapTileLayer.Cell> cells = getCellsByCoords(x, y, 2);
 					ClickButton cb = new ClickButton(new Vector2(x + 1, y),
@@ -200,13 +222,6 @@ public class World {
 		return back;
 	}
 
-	public void removeEntity(Entity entity) {
-		if (entity == player) {
-			HackathonGame.isGameOver = true;
-		}
-		this.entities.remove(entity);
-	}
-
 	private static final Map<String, Method> script_methods = new HashMap<>();
 
 	static {
@@ -222,7 +237,7 @@ public class World {
 		Logger logger = Logger.getLogger("script");
 		String[] lines = script.split(";");
 		for (String line : lines) {
-			String[] cmd_args = line.split(" ", 1);
+			String[] cmd_args = line.split(" ", 2);
 			Method m = script_methods.getOrDefault(cmd_args[0], null);
 			if (m == null) {
 				logger.severe("Unknown command " + cmd_args[0]);
@@ -237,22 +252,22 @@ public class World {
 				param_strings = new String[0];
 			}
 
-			if (cmd_args.length != m.getParameterCount()) {
-				logger.severe("Command " + cmd_args[0] + " requires " + m.getParameterCount() + " parameters.");
+			if (param_strings.length + 2 != m.getParameterCount()) {
+				logger.severe("Command " + cmd_args[0] + " requires " + (m.getParameterCount() - 2) + " parameters.");
 				return;
 			}
 
-			Object[] params = new Object[m.getParameterCount() + 2];
+			Object[] params = new Object[m.getParameterCount()];
 			params[0] = cell_x;
 			params[1] = cell_y;
 			Class<?>[] param_types = m.getParameterTypes();
-			for (int i=0; i<m.getParameterCount(); ++i) {
-				Class<?> c = param_types[i];
+			for (int i=0; i < m.getParameterCount() - 2; i++) {
+				Class<?> c = param_types[i+2];
 				String p = param_strings[i];
-				if (c == Float.class) {
+				if (c == float.class) {
 					params[i+2] = Float.parseFloat(p);
 				}
-				else if (c == Integer.class) {
+				else if (c == int.class) {
 					params[i+2] = Integer.parseInt(p);
 				}
 				else if (c == String.class) {
@@ -267,7 +282,7 @@ public class World {
 			try {
 				m.invoke(this, params);
 			} catch (Exception e) {
-				Logger.getLogger("script").severe("Script failed");
+				logger.log(Level.SEVERE, "Script failed", e);
 			}
 		}
 	}
@@ -280,9 +295,10 @@ public class World {
 	@ScriptCommand
 	public void battery(int cell_x, int cell_y, float capacity, float consumption) {
 		Upgrade upgrade = new Upgrade(capacity, consumption);
-		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
+		Sprite batterySprite = new Sprite(new Texture("tew.png"), 32, 32);
 		UpgradeItem ue = new UpgradeItem(batterySprite, upgrade);
 		ue.getLocation().set(cell_x + 0.5f, cell_y + 0.5f);
 		entities.add(ue);
+		Logger.getLogger("script").info("Spawned Battery at (" + cell_x + ", " + cell_y + ") cap=" + capacity + ", drain=" + consumption);
 	}
 }

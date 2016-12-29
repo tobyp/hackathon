@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="2">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="3">
  <tileset firstgid="1" name="tilemap" tilewidth="32" tileheight="32" tilecount="1024" columns="32">
   <image source="tilemap.png" width="1024" height="1024"/>
  </tileset>
@@ -165,8 +165,13 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="meta" visible="0">
+ <objectgroup name="meta">
   <object id="1" name="player-start" type="meta" x="223" y="192" width="32" height="32"/>
+  <object id="2" x="672" y="192" width="32" height="32">
+   <properties>
+    <property name="on-load" value="battery 10.0 -1.0"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer name="walk" width="50" height="50" visible="0" opacity="0.65">
   <data encoding="csv">

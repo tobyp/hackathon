@@ -7,6 +7,7 @@ import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Player extends DynamicEntity {
 	// how much energy is still left in the battery, between 0 and batteryMax
@@ -19,6 +20,8 @@ public class Player extends DynamicEntity {
 	private Vector2 target;
 
 	private List<Upgrade> upgrades;
+
+	private static final float PLAYER_SPEED = 1.f;
 
 	public Player() {
 		super(new Texture("tew.png"), 0, 0, 128, 128);
@@ -36,11 +39,14 @@ public class Player extends DynamicEntity {
 
 	// updates batteryMax and consumption (for new upgrades)
 	private void recalculateStats() {
+		float old_battery_max = getBatteryMax();
 		batteryMax = 1.f;
 		consumption = 0.0f;
 		for (Upgrade u : upgrades) {
 			u.apply(this);
 		}
+		float delta_battery_max = getBatteryMax() - old_battery_max;
+		battery = Math.min(batteryMax, battery + delta_battery_max);
 	}
 
 	public float getBattery() {
@@ -65,7 +71,7 @@ public class Player extends DynamicEntity {
 	}
 
 	public void setConsumption(float consumption) {
-		this.consumption = consumption;
+		this.consumption = Math.max(0.f, consumption);
 	}
 
 	public Vector2 getTarget() {
@@ -86,11 +92,11 @@ public class Player extends DynamicEntity {
 
 	@Override
 	public void update(World world, float deltaTime) {
-		battery -= consumption * deltaTime;
+		battery = Math.max(Math.min(batteryMax, battery + consumption * deltaTime), 0.f);
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}
-		setVelocity(target.sub(location).scl(0.3f));
+		setVelocity(target.sub(location).scl(PLAYER_SPEED));
 	}
 
 	@Override
