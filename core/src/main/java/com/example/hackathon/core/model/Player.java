@@ -113,8 +113,8 @@ public class Player extends DynamicEntity {
 	}
 
 	@Override
-	public void collide(World world, Vector2 pos) {
-		super.collide(world, pos);
+	public void collide(World world) {
+		super.collide(world);
 		if (world.getWorldTime() - soundStartTime > rand.nextInt(15) / 10f) {
 			soundStartTime = world.getWorldTime();
 			collideSound.play();
