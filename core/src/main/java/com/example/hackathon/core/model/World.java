@@ -1,5 +1,7 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapLayer;
@@ -26,6 +28,7 @@ public class World {
 	private TiledMapTileLayer walkLayer;
 	private TiledMapTileLayer buttonLayer;
 	private MapLayer metaLayer;
+	public Sound zapSound = Gdx.audio.newSound(Gdx.files.internal("sound/zap.wav"));
 
 	private List<Entity> entities;
 	private Map<String, Entity> entity_names;
@@ -350,8 +353,10 @@ public class World {
 
 	@ScriptCommand
 	public void coilOn(MapObject mo, String coilName) {
-		Coil coil = (Coil)getEntity(coilName);
+		Coil coil = (Coil) getEntity(coilName);
 		coil.setActive(this, true);
+		// Play zap sound
+		zapSound.play();
 		Logger.getLogger("script").info("turn on coil " + coilName);
 	}
 

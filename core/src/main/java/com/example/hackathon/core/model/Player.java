@@ -3,14 +3,11 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 
 public class Player extends DynamicEntity {
 	private static final float PLAYER_SPEED = 1.f;
@@ -27,6 +24,7 @@ public class Player extends DynamicEntity {
 
 	private float soundStartTime = 0;
 	private final Sound collideSound = Gdx.audio.newSound(Gdx.files.internal("sound/donk.wav"));
+	private final Sound upgradeSound = Gdx.audio.newSound(Gdx.files.internal("sound/upgrade.mp3"));
 	private final Random rand = new Random();
 
 	public Player(Vector2 location) {
@@ -41,6 +39,7 @@ public class Player extends DynamicEntity {
 	public void addUpgrade(Upgrade u) {
 		upgrades.add(u);
 		recalculateStats();
+		upgradeSound.play(100);
 	}
 
 	// updates batteryMax and consumption (for new upgrades)
@@ -123,7 +122,7 @@ public class Player extends DynamicEntity {
 		super.collide(world);
 		if (world.getWorldTime() - soundStartTime > rand.nextInt(15) / 10f) {
 			soundStartTime = world.getWorldTime();
-			collideSound.play();
+			collideSound.play(0.2f);
 		}
 	}
 }

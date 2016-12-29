@@ -1,1 +1,4 @@
-donk.wav: https://www.freesound.org/people/phoenixdk/sounds/80417/
+background.mp3 (CC-0): https://freesound.org/people/TreasureBoxFilms/sounds/91116/
+donk.wav (CC-0): https://www.freesound.org/people/phoenixdk/sounds/80417/
+upgrade.mp3 (CC-0): https://freesound.org/people/cabled_mess/sounds/364935/
+zap.wav (CC-BY): https://freesound.org/people/beman87/sounds/169687/
