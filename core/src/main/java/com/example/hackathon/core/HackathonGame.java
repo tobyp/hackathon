@@ -37,6 +37,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private static final float TILES_PER_SCREEN_Y = 10f;
 	private static final float CAMERA_MOVE_MARGIN = 0.05f;
 
+	public static boolean isEndGame = false;
 	public static boolean isGameOver = false;
 
 	@Override
@@ -101,6 +102,13 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 			Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 			font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 			font.draw(batch, "Game Over", 10, 40);
+			// TODO warten
+			isGameOver = false;
+		} else if (isEndGame) {
+			Gdx.gl.glClearColor(0, 0, 0, 0);
+			Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+			font.setColor(0.5f, 0.5f, 1.0f, 1.0f);
+			font.draw(batch, "You have won! :D", 10, 40);
 			// TODO warten
 			isGameOver = false;
 		}

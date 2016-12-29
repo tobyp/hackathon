@@ -301,7 +301,7 @@
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="11" name="buttonT2" x="544" y="224" width="64" height="64">
@@ -329,21 +329,21 @@
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value=" coil off boss"/>
    </properties>
   </object>
   <object id="15" name="coilT2" x="544" y="448" width="64" height="64">
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="16" name="coilT3" x="864" y="768" width="64" height="64">
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192"/>
