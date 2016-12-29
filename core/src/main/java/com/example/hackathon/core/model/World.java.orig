@@ -39,10 +39,15 @@ public class World {
 	private List<TiledMapTile> clickButtonOnTiles;
 	private List<TiledMapTile> clickButtonOffTiles;
 
-	public boolean isWalkable(int x, int y) {
+<<<<<<< HEAD
+	private boolean isWalkable(int x, int y) {
 		TiledMapTileLayer.Cell cell = walkLayer.getCell(x, y);
 		if (cell == null) return false;
 		return cell.getTile().getId() != 1;
+=======
+	public boolean isWalkable(int x, int y) {
+		return walkLayer.getCell(x, y).getTile().getId() != 1;
+>>>>>>> 251bbb7e425c2597774737443ea9b5c03cc6e34b
 	}
 
 	public World(TiledMap map) {
@@ -64,7 +69,14 @@ public class World {
 
 		for (MapObject mo : metaLayer.getObjects()) {
 			if (mo.getProperties().containsKey("on-load")) {
+<<<<<<< HEAD
 				runScript(mo, mo.getProperties().get("on-load", String.class));
+=======
+				int x = -1, y = -1;
+				if (mo.getProperties().containsKey("x")) x = (int)(mo.getProperties().get("x", Float.class) / 32.f);
+				if (mo.getProperties().containsKey("y")) y = (int)(mo.getProperties().get("y", Float.class) / 32.f);
+				runScript(x, y, mo.getProperties().get("on-load", String.class));
+>>>>>>> 251bbb7e425c2597774737443ea9b5c03cc6e34b
 			}
 		}
 	}
@@ -118,7 +130,13 @@ public class World {
 		if (player.isDestroyed()) {
 			HackathonGame.isGameOver = true;
 		}
+<<<<<<< HEAD
+		entities.removeIf((Entity e) -> e.isDestroyed());
+=======
 		entities.removeIf(Entity::isDestroyed);
+
+		entities.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
+>>>>>>> 251bbb7e425c2597774737443ea9b5c03cc6e34b
 	}
 
 

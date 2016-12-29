@@ -1,7 +1,11 @@
 package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+<<<<<<< HEAD
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Rectangle;
+=======
+>>>>>>> 251bbb7e425c2597774737443ea9b5c03cc6e34b
 import com.badlogic.gdx.math.Vector2;
 
 /**

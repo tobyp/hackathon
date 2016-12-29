@@ -8,7 +8,11 @@ import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Locale;
+import java.util.logging.Logger;
+=======
+>>>>>>> 251bbb7e425c2597774737443ea9b5c03cc6e34b
 import java.util.Random;
 
 public class Player extends DynamicEntity {
