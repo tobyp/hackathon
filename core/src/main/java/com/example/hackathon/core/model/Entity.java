@@ -7,9 +7,9 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Entity {
     int collision_priority = 0;
-    final Vector2 location = new Vector2();
-    final Vector2 size = new Vector2(1, 1);
-    private final Vector2 collisionSize = new Vector2(1, 1);
+    protected final Vector2 location = new Vector2();
+    protected final Vector2 size = new Vector2(1, 1);
+    protected final Vector2 collisionSize = new Vector2(1, 1);
     private float rotation = 0.f;
     protected Sprite sprite = null;
     private boolean destroyed = false;

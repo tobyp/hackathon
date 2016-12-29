@@ -345,6 +345,12 @@ public class World {
 	}
 
 	@ScriptCommand
+	public void coilOff(MapObject mo, String coilName) {
+		Coil coil = (Coil)getEntity(coilName);
+		coil.setActive(false);
+	}
+
+	@ScriptCommand
 	public void trigger(MapObject mo, boolean on) {
 		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2(), size = new Vector2();
@@ -356,5 +362,40 @@ public class World {
 				mo.getProperties().get("on-exit", String.class));
 		addEntity(trigger, mo.getName());
 		Logger.getLogger("script").info("Spawned trigger at " + center + " state="+on);
+	}
+
+	@ScriptCommand
+	public void counter(MapObject mo, int init_count) {
+		Counter c = new Counter(init_count, mo.getProperties().get("on-zero", String.class));
+		addEntity(c, mo.getName());
+	}
+
+	@ScriptCommand
+	public void dec(MapObject mo, String name) {
+		Counter c = (Counter)entity_names.get(name);
+		c.dec(this);
+	}
+
+	@ScriptCommand
+	public void zap(MapObject mo, String coil, String target) {
+
+	}
+
+	@ScriptCommand
+	public void timer(MapObject mo, float init_time) {
+		Timer c = new Timer(init_time, mo.getProperties().get("on-zero", String.class));
+		addEntity(c, mo.getName());
+	}
+
+	@ScriptCommand
+	public void timerSet(MapObject mo, String name, float time) {
+		Timer c = (Timer)entity_names.get(name);
+		c.setTime(time);
+	}
+
+	@ScriptCommand
+	public void kill(MapObject mo, String who) {
+		Entity b = (Entity) entity_names.get(who);
+		b.destroy();
 	}
 }

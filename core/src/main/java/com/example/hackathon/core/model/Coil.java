@@ -14,9 +14,6 @@ import java.util.List;
  */
 public class Coil extends Entity {
     private boolean active;
-    private String victim;
-    private Sprite sprite = null;
-    private Entity victim_entity = null;
 
     protected List<TiledMapTile> onTiles;
     protected List<TiledMapTileLayer.Cell> coveredCells;
@@ -27,25 +24,9 @@ public class Coil extends Entity {
                 String onActivate, String onDeactivate) {
         super(location, new Vector2(2, 2));
         this.active = active;
-        this.victim = victim;
         this.onTiles = onTiles;
         this.offTiles = offTiles;
         this.coveredCells = coveredCells;
-        sprite = new Sprite(new Texture("coil_lightning.png"), 0, 0, 96, 32);
-    }
-
-    @Override
-    public void update(World world, float deltaTime) {
-        if (victim != null && victim_entity == null) {
-            victim_entity = world.getEntity(victim);
-        }
-    }
-
-    @Override
-    public void render(World world, SpriteBatch batch) {
-        if (active && victim_entity != null) {
-            sprite.draw(batch);
-        }
     }
 
     public void updateTiles() {
@@ -63,9 +44,6 @@ public class Coil extends Entity {
 
     public void setActive(boolean active) {
         this.active = active;
-        if (active) {
-
-        }
         updateTiles();
     }
 }

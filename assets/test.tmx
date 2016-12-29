@@ -329,7 +329,7 @@
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value=" coil off boss"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="15" name="coilT2" x="544" y="448" width="64" height="64">
