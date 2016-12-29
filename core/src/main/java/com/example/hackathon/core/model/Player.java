@@ -32,9 +32,9 @@ public class Player extends DynamicEntity {
 	public Player(Vector2 location) {
 		super(location, new Vector2(2, 2), new Vector2(2, 2),
 			new Texture("tew.png"), 0, 0, 128, 128);
-		batteryMax = 1.f;
+		batteryMax = 30.f;
 		battery = batteryMax;
-		consumption = 0.0f;
+		consumption = 1.0f;
 		upgrades = new ArrayList<>();
 	}
 
@@ -47,8 +47,8 @@ public class Player extends DynamicEntity {
 	private void recalculateStats() {
 		float old_battery_max = getBatteryMax();
 		float old_battery = getBattery();
-		batteryMax = 1.f;
-		consumption = 0.0f;
+		batteryMax = 30.f;
+		consumption = 1.0f;
 		//Logger.getAnonymousLogger().info("!!!!!!!!!!!!!!");
 		for (Upgrade u : upgrades) {
 			u.apply(this);
