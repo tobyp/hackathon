@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="20">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="21">
  <tileset firstgid="1" name="tilemap" tilewidth="32" tileheight="32" tilecount="1024" columns="32">
   <image source="tilemap.png" width="1024" height="1024"/>
   <terraintypes>
@@ -255,7 +255,7 @@
 </data>
  </layer>
  <objectgroup name="meta">
-  <object id="1" name="player-start" type="meta" x="96" y="800" width="32" height="32"/>
+  <object id="1" name="player-start" x="96" y="800" width="32" height="32"/>
   <object id="2" name="battery" x="861" y="159" width="32" height="32">
    <properties>
     <property name="on-load" value="battery 10.0 -1.0"/>
@@ -329,7 +329,7 @@
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value=" coil off boss"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="15" name="coilT2" x="544" y="448" width="64" height="64">
@@ -346,11 +346,18 @@
     <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
-  <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192"/>
+  <object id="17" name="boss-start" x="640" y="544" width="192" height="192"/>
   <object id="19" name="counter" x="416" y="448" width="32" height="32">
    <properties>
     <property name="on-load" value="counter 4"/>
     <property name="on-zero" value="zap coilT1 boss;zap coilT2 boss; zap coilT3 boss;zap coilT4 boss"/>
+   </properties>
+  </object>
+  <object id="20" name="endTrigger" x="672" y="32" width="224" height="32">
+   <properties>
+    <property name="on-enter" value="win"/>
+    <property name="on-exit" value=""/>
+    <property name="on-load" value="trigger"/>
    </properties>
   </object>
  </objectgroup>

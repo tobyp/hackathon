@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class World {
+	private HackathonGame game;
 	private TiledMap map;
 	private Player player;
 	private Boss boss;
@@ -43,7 +44,7 @@ public class World {
 	/**
 	 * Get the mid point of a meta map object.
 	 *
-	 * @param name The name of the object in the meta layer.
+	 * @param mo The object in the meta layer.
 	 * @return The mid point of the object.
 	 */
 	public Vector2 getObjectLocation(MapObject mo) {
@@ -53,7 +54,8 @@ public class World {
 		return center;
 	}
 
-	public World(TiledMap map) {
+	public World(HackathonGame game, TiledMap map) {
+		this.game = game;
 		this.map = map;
 		metaLayer = map.getLayers().get("meta");
 		walkLayer = (TiledMapTileLayer)map.getLayers().get("walk");
@@ -90,10 +92,13 @@ public class World {
 		return worldTime;
 	}
 
+	public HackathonGame getGame() {
+		return game;
+	}
+
 	public boolean isWalkable(int x, int y) {
 		TiledMapTileLayer.Cell cell = walkLayer.getCell(x, y);
-		if (cell == null) return false;
-		return cell.getTile().getId() != 1;
+		return cell != null && cell.getTile().getId() != 1;
 	}
 
 	public TiledMap getMap() {
@@ -143,7 +148,7 @@ public class World {
 				});
 
 		if (player.isDestroyed()) {
-			HackathonGame.isGameOver = true;
+			game.isGameOver = true;
 		}
 		entities.removeIf(Entity::isDestroyed);
 
@@ -345,7 +350,7 @@ public class World {
 	}
 
 	@ScriptCommand
-	public void trigger(MapObject mo, boolean on) {
+	public void trigger(MapObject mo) {
 		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2(), size = new Vector2();
 		rmo.getRectangle().getCenter(center);
@@ -355,6 +360,13 @@ public class World {
 				mo.getProperties().get("on-enter", String.class),
 				mo.getProperties().get("on-exit", String.class));
 		addEntity(trigger, mo.getName());
-		Logger.getLogger("script").info("Spawned trigger at " + center + " state="+on);
+		Logger.getLogger("script").info("Spawned trigger at " + center);
+	}
+
+	@ScriptCommand
+	public void win(MapObject mo) {
+		Logger.getLogger("script").info("The player has won");
+		if (boss.getIsDead())
+			game.isEndGame = true;
 	}
 }
