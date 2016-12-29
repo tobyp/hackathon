@@ -15,7 +15,7 @@ public class Counter extends Entity {
         this.onZero = onZero;
     }
 
-    public int dec(World world) {
+    public void dec(World world) {
         this.count--;
         if (this.count == 0) {
             world.runScript(null, onZero);

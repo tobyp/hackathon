@@ -168,7 +168,7 @@ public class World {
 
 			UpgradeItem ue = new UpgradeItem(new Vector2(w.x + 0.5f, w.y + 0.5f), batterySprite, upgrade);
 			entities.add(ue);
-			Logger.getLogger("script").info("Spawned Battery at (" + w.x + ", " + w.y + ") cap=" + 10 + ", drain=" + 0.1f);
+			//Logger.getLogger("script").info("Spawned Battery at (" + w.x + ", " + w.y + ") cap=" + 10 + ", drain=" + 0.1f);
 		}
 	}
 
@@ -276,7 +276,7 @@ public class World {
 
 		UpgradeItem ue = new UpgradeItem(center, batterySprite, upgrade);
 		entities.add(ue);
-		Logger.getLogger("script").info("Spawned Battery at " + center + " cap=" + capacity + ", drain=" + consumption);
+		//Logger.getLogger("script").info("Spawned Battery at " + center + " cap=" + capacity + ", drain=" + consumption);
 	}
 
 	@ScriptCommand
@@ -290,7 +290,8 @@ public class World {
 		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2(), size = new Vector2();
 		rmo.getRectangle().getCenter(center);
-		rmo.getRectangle().getSize(size);
+		size.x = rmo.getRectangle().getWidth();
+		size.y = rmo.getRectangle().getHeight();
 		Barrier b = new Barrier(center, size, on, toggle_period);
 		addEntity(b, mo.getName());
 		Logger.getLogger("script").info("Spawned barrier at " + center);
