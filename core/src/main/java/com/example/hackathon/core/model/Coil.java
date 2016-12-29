@@ -19,6 +19,9 @@ public class Coil extends Entity {
     protected List<TiledMapTileLayer.Cell> coveredCells;
     protected List<TiledMapTile> offTiles;
 
+    protected String onActivate;
+    protected String onDeactivate;
+
     public Coil(Vector2 location, boolean active, String victim, List<TiledMapTile> onTiles,
                 List<TiledMapTile> offTiles, List<TiledMapTileLayer.Cell> coveredCells,
                 String onActivate, String onDeactivate) {
@@ -27,6 +30,9 @@ public class Coil extends Entity {
         this.onTiles = onTiles;
         this.offTiles = offTiles;
         this.coveredCells = coveredCells;
+
+        this.onActivate = onActivate;
+        this.onDeactivate = onDeactivate;
     }
 
     public void updateTiles() {
@@ -42,8 +48,9 @@ public class Coil extends Entity {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(World world, boolean active) {
         this.active = active;
+        world.runScript(null, active ? onActivate : onDeactivate);
         updateTiles();
     }
 }

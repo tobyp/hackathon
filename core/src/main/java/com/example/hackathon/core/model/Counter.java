@@ -2,6 +2,8 @@ package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.logging.Logger;
+
 /**
  * Created by tobyp on 12/29/16.
  */
@@ -16,9 +18,16 @@ public class Counter extends Entity {
     }
 
     public void dec(World world) {
-        this.count--;
-        if (this.count == 0) {
-            world.runScript(null, onZero);
+        if (this.count > 0) {
+            this.count--;
+            Logger.getLogger("counter").info("Counter is at " + count);
+            if (this.count == 0) {
+                world.runScript(null, onZero);
+            }
         }
+    }
+
+    public void inc() {
+        this.count++;
     }
 }

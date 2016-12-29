@@ -37,8 +37,8 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private static final float TILES_PER_SCREEN_Y = 10f;
 	private static final float CAMERA_MOVE_MARGIN = 0.05f;
 
-	public static boolean isEndGame = false;
-	public static boolean isGameOver = false;
+	public boolean isEndGame = false;
+	public boolean isGameOver = false;
 
 	@Override
 	public void create () {
@@ -53,7 +53,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		TmxMapLoader loader = new TmxMapLoader();
 		TiledMap map = loader.load("test.tmx", params);
 
-		world = new World(map);
+		world = new World(this, map);
 		camera.translate(world.getPlayer().getLocation());
 
 		map_renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);

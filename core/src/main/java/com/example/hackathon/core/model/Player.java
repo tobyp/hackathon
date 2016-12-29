@@ -105,7 +105,7 @@ public class Player extends DynamicEntity {
 		super.update(world, deltaTime);
 		battery = Math.max(Math.min(batteryMax, battery - consumption * deltaTime), 0.f);
 		if (battery <= 0.f) {
-			HackathonGame.isGameOver = true;
+			world.getGame().isGameOver = true;
 		}
 		// Accelerate and decelerate a bit
 		Vector2 targetVel = target.sub(location).scl(PLAYER_SPEED);

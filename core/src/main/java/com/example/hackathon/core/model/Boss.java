@@ -4,11 +4,21 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 public class Boss extends DynamicEntity {
+	private boolean isDead = false;
+
 	public Boss(Vector2 location) {
 		super(location, new Vector2(6, 6), new Vector2(6, 6),
 			new Texture("boss.png"), 0, 0, 128, 128);
 		// Handle collisions here and not in the player
 		collision_priority = 1;
+	}
+
+	public boolean getIsDead() {
+		return isDead;
+	}
+
+	public void setIsDead(boolean b) {
+		isDead = b;
 	}
 
 	@Override

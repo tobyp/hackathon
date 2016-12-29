@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="20">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="22">
  <tileset firstgid="1" name="tilemap" tilewidth="32" tileheight="32" tilecount="1024" columns="32">
   <image source="tilemap.png" width="1024" height="1024"/>
   <terraintypes>
@@ -255,13 +255,13 @@
 </data>
  </layer>
  <objectgroup name="meta">
-  <object id="1" name="player-start" type="meta" x="96" y="800" width="32" height="32"/>
-  <object id="2" name="battery" x="861" y="159" width="32" height="32">
+  <object id="1" name="player-start" x="96" y="800" width="32" height="32"/>
+  <object id="2" name="battery" x="864" y="160" width="32" height="32">
    <properties>
     <property name="on-load" value="battery 10.0 -1.0"/>
    </properties>
   </object>
-  <object id="4" name="barrier1" x="864" y="960" width="32" height="96" rotation="90">
+  <object id="4" name="barrier1" x="768" y="960" width="96" height="32">
    <properties>
     <property name="on-load" value="barrier on 0.5"/>
    </properties>
@@ -280,7 +280,7 @@
     <property name="on-load" value="button off"/>
    </properties>
   </object>
-  <object id="7" name="barrier2" x="1280" y="576" width="32" height="96" rotation="90">
+  <object id="7" name="barrier2" x="1184" y="576" width="96" height="32">
    <properties>
     <property name="on-load" value="barrier on -2"/>
    </properties>
@@ -299,8 +299,8 @@
   </object>
   <object id="10" name="coilT1" x="544" y="768" width="64" height="64">
    <properties>
-    <property name="on-activate" value="barrierToggle barrier1"/>
-    <property name="on-deactivate" value="barrierToggle barrier1"/>
+    <property name="on-activate" value="dec counter"/>
+    <property name="on-deactivate" value="inc counter"/>
     <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
@@ -327,30 +327,43 @@
   </object>
   <object id="14" name="coilT4" x="864" y="448" width="64" height="64">
    <properties>
-    <property name="on-activate" value="barrierToggle barrier1"/>
-    <property name="on-deactivate" value="barrierToggle barrier1"/>
+    <property name="on-activate" value="dec counter"/>
+    <property name="on-deactivate" value="inc counter"/>
     <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="15" name="coilT2" x="544" y="448" width="64" height="64">
    <properties>
-    <property name="on-activate" value="barrierToggle barrier1"/>
-    <property name="on-deactivate" value="barrierToggle barrier1"/>
+    <property name="on-activate" value="dec counter"/>
+    <property name="on-deactivate" value="inc counter"/>
     <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="16" name="coilT3" x="864" y="768" width="64" height="64">
    <properties>
-    <property name="on-activate" value="barrierToggle barrier1"/>
-    <property name="on-deactivate" value="barrierToggle barrier1"/>
+    <property name="on-activate" value="dec counter"/>
+    <property name="on-deactivate" value="inc counter"/>
     <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
-  <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192"/>
+  <object id="17" name="boss-start" x="640" y="544" width="192" height="192"/>
   <object id="19" name="counter" x="416" y="448" width="32" height="32">
    <properties>
     <property name="on-load" value="counter 4"/>
-    <property name="on-zero" value="zap coilT1 boss;zap coilT2 boss; zap coilT3 boss;zap coilT4 boss"/>
+    <property name="on-zero" value="zap coilT1 boss;zap coilT2 boss; zap coilT3 boss;zap coilT4 boss; timerSet timer 2.0"/>
+   </properties>
+  </object>
+  <object id="20" name="endTrigger" x="672" y="32" width="224" height="32">
+   <properties>
+    <property name="on-enter" value="win"/>
+    <property name="on-exit" value=""/>
+    <property name="on-load" value="trigger"/>
+   </properties>
+  </object>
+  <object id="21" name="timer" x="416" y="384" width="32" height="32">
+   <properties>
+    <property name="on-load" value="timer -1.f"/>
+    <property name="on-zero" value="kill boss"/>
    </properties>
   </object>
  </objectgroup>

@@ -26,9 +26,12 @@ public class Timer extends Entity {
 
     @Override
     public void update(World world, float deltaTime) {
-        this.time = Math.max(0, time - deltaTime);
-        if (this.time <= 0.f) {
-            world.runScript(null, onZero);
+        if (this.time > 0.f) {
+            this.time = Math.max(0, time - deltaTime);
+            if (this.time <= 0.f) {
+                world.runScript(null, onZero);
+                this.time = -1.f;
+            }
         }
     }
 }

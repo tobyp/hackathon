@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class World {
+	private HackathonGame game;
 	private TiledMap map;
 	private Player player;
 	private Boss boss;
@@ -28,6 +29,7 @@ public class World {
 
 	private List<Entity> entities;
 	private Map<String, Entity> entity_names;
+	private Set<Entity> new_entities = new HashSet<>();
 
 	private float worldTime;
 
@@ -43,7 +45,7 @@ public class World {
 	/**
 	 * Get the mid point of a meta map object.
 	 *
-	 * @param name The name of the object in the meta layer.
+	 * @param mo The object in the meta layer.
 	 * @return The mid point of the object.
 	 */
 	public Vector2 getObjectLocation(MapObject mo) {
@@ -53,7 +55,8 @@ public class World {
 		return center;
 	}
 
-	public World(TiledMap map) {
+	public World(HackathonGame game, TiledMap map) {
+		this.game = game;
 		this.map = map;
 		metaLayer = map.getLayers().get("meta");
 		walkLayer = (TiledMapTileLayer)map.getLayers().get("walk");
@@ -90,10 +93,13 @@ public class World {
 		return worldTime;
 	}
 
+	public HackathonGame getGame() {
+		return game;
+	}
+
 	public boolean isWalkable(int x, int y) {
 		TiledMapTileLayer.Cell cell = walkLayer.getCell(x, y);
-		if (cell == null) return false;
-		return cell.getTile().getId() != 1;
+		return cell != null && cell.getTile().getId() != 1;
 	}
 
 	public TiledMap getMap() {
@@ -122,6 +128,8 @@ public class World {
 	private final Set<Entity> collision_cache = new HashSet<>();
 
 	public void update(float deltaTime) {
+		entities.addAll(new_entities);
+		new_entities.clear();
 		worldTime += deltaTime;
 		entities.forEach(e -> e.update(this, deltaTime));
 
@@ -143,7 +151,7 @@ public class World {
 				});
 
 		if (player.isDestroyed()) {
-			HackathonGame.isGameOver = true;
+			game.isGameOver = true;
 		}
 		entities.removeIf(Entity::isDestroyed);
 
@@ -167,17 +175,16 @@ public class World {
 			Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
 
 			UpgradeItem ue = new UpgradeItem(new Vector2(w.x + 0.5f, w.y + 0.5f), batterySprite, upgrade);
-			entities.add(ue);
-			Logger.getLogger("script").info("Spawned Battery at (" + w.x + ", " + w.y + ") cap=" + 10 + ", drain=" + 0.1f);
+			addEntity(ue);
 		}
 	}
 
 	public void addEntity(Entity e) {
-		entities.add(e);
+		new_entities.add(e);
 	}
 
 	public void addEntity(Entity e, String name) {
-		entities.add(e);
+		new_entities.add(e);
 		if (name != null) {
 			entity_names.put(name, e);
 			Logger.getLogger("script").info("Named entity " + name + ": " + e.toString());
@@ -211,7 +218,7 @@ public class World {
 			String[] cmd_args = line.split(" ", 2);
 			Method m = script_methods.getOrDefault(cmd_args[0], null);
 			if (m == null) {
-				logger.severe("Unknown command " + cmd_args[0]);
+				logger.severe("Unknown command (" + mo + "): " + script);
 				return;
 			}
 
@@ -224,7 +231,7 @@ public class World {
 			}
 
 			if (param_strings.length + 1 != m.getParameterCount()) {
-				logger.severe("Command " + cmd_args[0] + " requires " + (m.getParameterCount() - 2) + " parameters.");
+				logger.severe("Command " + cmd_args[0] + " requires " + (m.getParameterCount() - 1) + " parameters.");
 				return;
 			}
 
@@ -247,7 +254,7 @@ public class World {
 					params[i] = (p.equalsIgnoreCase("true") || p.equalsIgnoreCase("on") || p.equalsIgnoreCase("yes") || p.equalsIgnoreCase("1"));
 				}
 				else {
-					logger.severe("Unsupported argument type " + c.toString());
+					logger.severe("Unsupported argument type " + c.toString() + " in " + cmd_args[0]);
 					return;
 				}
 			}
@@ -275,7 +282,7 @@ public class World {
 		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
 
 		UpgradeItem ue = new UpgradeItem(center, batterySprite, upgrade);
-		entities.add(ue);
+		addEntity(ue);
 		Logger.getLogger("script").info("Spawned Battery at " + center + " cap=" + capacity + ", drain=" + consumption);
 	}
 
@@ -333,7 +340,7 @@ public class World {
 			}
 		}
 
-		Coil c = new Coil(center, on, victim, coilOnTiles, coilOffTiles, cells, null, null);
+		Coil c = new Coil(center, on, victim, coilOnTiles, coilOffTiles, cells, mo.getProperties().get("on-activate", String.class), mo.getProperties().get("on-deactivate", String.class));
 		addEntity(c, mo.getName());
 		Logger.getLogger("script").info("Spawned coil at " + center);
 	}
@@ -341,17 +348,17 @@ public class World {
 	@ScriptCommand
 	public void coilOn(MapObject mo, String coilName) {
 		Coil coil = (Coil)getEntity(coilName);
-		coil.setActive(true);
+		coil.setActive(this, true);
 	}
 
 	@ScriptCommand
 	public void coilOff(MapObject mo, String coilName) {
 		Coil coil = (Coil)getEntity(coilName);
-		coil.setActive(false);
+		coil.setActive(this, false);
 	}
 
 	@ScriptCommand
-	public void trigger(MapObject mo, boolean on) {
+	public void trigger(MapObject mo) {
 		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2(), size = new Vector2();
 		rmo.getRectangle().getCenter(center);
@@ -361,7 +368,7 @@ public class World {
 				mo.getProperties().get("on-enter", String.class),
 				mo.getProperties().get("on-exit", String.class));
 		addEntity(trigger, mo.getName());
-		Logger.getLogger("script").info("Spawned trigger at " + center + " state="+on);
+		Logger.getLogger("script").info("Spawned trigger at " + center);
 	}
 
 	@ScriptCommand
@@ -377,8 +384,17 @@ public class World {
 	}
 
 	@ScriptCommand
-	public void zap(MapObject mo, String coil, String target) {
+	public void inc(MapObject mo, String name) {
+		Counter c = (Counter)entity_names.get(name);
+		c.inc();
+	}
 
+	@ScriptCommand
+	public void zap(MapObject mo, String coil, String target) {
+		Entity e_source = entity_names.get(coil);
+		Entity e_target = entity_names.get(target);
+		Zap zap = new Zap(e_source, e_target);
+		addEntity(zap);
 	}
 
 	@ScriptCommand
@@ -397,5 +413,13 @@ public class World {
 	public void kill(MapObject mo, String who) {
 		Entity b = (Entity) entity_names.get(who);
 		b.destroy();
+	}
+	
+	@ScriptCommand
+	public void win(MapObject mo) {
+		if (boss.getIsDead()) {
+			Logger.getLogger("script").info("The player has won");
+			game.isEndGame = true;
+		}
 	}
 }
