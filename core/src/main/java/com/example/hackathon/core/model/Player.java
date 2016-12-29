@@ -9,6 +9,7 @@ import com.example.hackathon.core.HackathonGame;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class Player extends DynamicEntity {
 	private static final float PLAYER_SPEED = 1.f;
@@ -44,13 +45,17 @@ public class Player extends DynamicEntity {
 	// updates batteryMax and consumption (for new upgrades)
 	private void recalculateStats() {
 		float old_battery_max = getBatteryMax();
+		float old_battery = getBattery();
 		batteryMax = 1.f;
 		consumption = 0.0f;
+		//Logger.getAnonymousLogger().info("!!!!!!!!!!!!!!");
 		for (Upgrade u : upgrades) {
 			u.apply(this);
+			//Logger.getAnonymousLogger().info("Upgrade applied: " + u.toString());
 		}
 		float delta_battery_max = getBatteryMax() - old_battery_max;
-		battery = Math.min(batteryMax, battery + delta_battery_max);
+		battery = Math.min(batteryMax, old_battery + delta_battery_max);
+		//Logger.getAnonymousLogger().info(Float.toString(battery));
 	}
 
 	public float getBattery() {
@@ -97,7 +102,7 @@ public class Player extends DynamicEntity {
 	@Override
 	public void update(World world, float deltaTime) {
 		super.update(world, deltaTime);
-		battery = Math.max(Math.min(batteryMax, battery + consumption * deltaTime), 0.f);
+		battery = Math.max(Math.min(batteryMax, battery - consumption * deltaTime), 0.f);
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}

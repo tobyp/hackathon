@@ -16,4 +16,9 @@ class Upgrade {
 		player.setBatteryMax(player.getBatteryMax() + batteryCapacityChange);
 		player.setConsumption(player.getConsumption() + batteryConsumptionChange);
 	}
+
+	@Override
+	public String toString() {
+		return batteryCapacityChange + " " + batteryConsumptionChange;
+	}
 }
