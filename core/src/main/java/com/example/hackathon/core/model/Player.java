@@ -28,12 +28,12 @@ public class Player extends DynamicEntity {
 	private final Random rand = new Random();
 
 	public Player(Vector2 location) {
-		super(location, new Vector2(2, 2), new Vector2(2, 2), new Texture("tew.png"), 0, 0, 128, 128);
+		super(location, new Vector2(2, 2), new Vector2(2, 2),
+			new Texture("tew.png"), 0, 0, 128, 128);
 		batteryMax = 1.f;
 		battery = batteryMax;
 		consumption = 0.0f;
 		upgrades = new ArrayList<>();
-		size.set(2, 2);
 	}
 
 	public void addUpgrade(Upgrade u) {

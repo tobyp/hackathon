@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import com.example.hackathon.core.model.DynamicEntity;
 import com.example.hackathon.core.model.Entity;
+import com.example.hackathon.core.model.Player;
 import com.example.hackathon.core.model.World;
 
 public class HackathonGame implements ApplicationListener, InputProcessor {
@@ -64,9 +65,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	public void render () {
 		float deltaTime = Gdx.graphics.getDeltaTime();
 
-		Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-		camera.unproject(pos);
-		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
+		mouseMoved(Gdx.input.getX(), Gdx.input.getY());
 
 		// Update logic
 		world.update(deltaTime);
@@ -162,7 +161,13 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	public boolean mouseMoved(int screenX, int screenY) {
 		Vector3 pos = new Vector3(screenX, screenY, 0);
 		camera.unproject(pos);
-		world.getPlayer().setTarget(new Vector2(pos.x, pos.y));
+		// Don't move if the mouse hovers the robot
+		Player p = world.getPlayer();
+		Vector2 cur = p.getLocation();
+		if (Math.abs(cur.x - pos.x) <= p.getSize().x / 2 && Math.abs(cur.y - pos.y) <= p.getSize().y / 2)
+			p.setTarget(cur.cpy());
+		else
+			p.setTarget(new Vector2(pos.x, pos.y));
 		return true;
 	}
 

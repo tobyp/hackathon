@@ -20,16 +20,13 @@ import java.util.logging.Logger;
 public class World {
 	private TiledMap map;
 	private Player player;
+	private Boss boss;
 	private TiledMapTileLayer walkLayer;
 	private TiledMapTileLayer buttonLayer;
 	private MapLayer metaLayer;
 	private float tileSize;
 
 	private List<Entity> entities;
-
-	public float getWorldTime() {
-		return worldTime;
-	}
 
 	private float worldTime;
 
@@ -38,10 +35,17 @@ public class World {
 	private List<TiledMapTile> clickButtonOnTiles;
 	private List<TiledMapTile> clickButtonOffTiles;
 
-	public boolean isWalkable(int x, int y) {
-		TiledMapTileLayer.Cell cell = walkLayer.getCell(x, y);
-		if (cell == null) return false;
-		return cell.getTile().getId() != 1;
+	/**
+	 * Get the mid point of a meta map object.
+	 *
+	 * @param name The name of the object in the meta layer.
+	 * @return The mid point of the object.
+	 */
+	public Vector2 getObjectLocation(String name) {
+		MapObject obj = metaLayer.getObjects().get(name);
+		float x = obj.getProperties().get("x", Float.class) / tileSize + Float.parseFloat(obj.getProperties().get("width", String.class)) / 2;
+		float y = obj.getProperties().get("y", Float.class) / tileSize + Float.parseFloat(obj.getProperties().get("height", String.class)) / 2;
+		return new Vector2(x, y);
 	}
 
 	public World(TiledMap map) {
@@ -54,18 +58,28 @@ public class World {
 		clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
 
-		MapObject player_start_mo = metaLayer.getObjects().get("player-start");
-		Vector2 player_start = new Vector2(player_start_mo.getProperties().get("x", Float.class) / tileSize, player_start_mo.getProperties().get("y", Float.class) / tileSize);
-		this.player = new Player(player_start);
+		player = new Player(getObjectLocation("player-start"));
+		boss = new Boss(getObjectLocation("boss-start"));
 
 		this.entities = new ArrayList<>();
 		entities.add(player);
+		entities.add(boss);
 
 		for (MapObject mo : metaLayer.getObjects()) {
 			if (mo.getProperties().containsKey("on-load")) {
 				runScript(mo, mo.getProperties().get("on-load", String.class));
 			}
 		}
+	}
+
+	public float getWorldTime() {
+		return worldTime;
+	}
+
+	public boolean isWalkable(int x, int y) {
+		TiledMapTileLayer.Cell cell = walkLayer.getCell(x, y);
+		if (cell == null) return false;
+		return cell.getTile().getId() != 1;
 	}
 
 	public TiledMap getMap() {
@@ -98,7 +112,7 @@ public class World {
 		entities.forEach(e -> e.update(this, deltaTime));
 
 		Rectangle player_rect = player.getCollisionRect();
-		entities.stream().forEach((Entity e) -> {
+		entities.forEach((Entity e) -> {
 					Rectangle entity_rect = e.getCollisionRect();
 					boolean collided = player_rect.overlaps(entity_rect);
 					boolean precollided = collision_cache.contains(e);

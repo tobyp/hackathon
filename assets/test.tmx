@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="18">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="19">
  <tileset firstgid="1" name="tilemap" tilewidth="32" tileheight="32" tilecount="1024" columns="32">
   <image source="tilemap.png" width="1024" height="1024"/>
   <terraintypes>
@@ -255,7 +255,12 @@
 </data>
  </layer>
  <objectgroup name="meta">
-  <object id="1" name="player-start" type="meta" x="95" y="805" width="32" height="32"/>
+  <object id="1" name="player-start" type="meta" x="95" y="805" width="32" height="32">
+   <properties>
+    <property name="height" type="float" value="2"/>
+    <property name="width" type="float" value="2"/>
+   </properties>
+  </object>
   <object id="2" name="battery" x="861" y="159" width="32" height="32">
    <properties>
     <property name="on-load" value="battery 10.0 -1.0"/>
@@ -344,6 +349,12 @@
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
     <property name="on-load" value="coil off"/>
+   </properties>
+  </object>
+  <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192">
+   <properties>
+    <property name="height" type="float" value="6"/>
+    <property name="width" type="float" value="6"/>
    </properties>
   </object>
  </objectgroup>
