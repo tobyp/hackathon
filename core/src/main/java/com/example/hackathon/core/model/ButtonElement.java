@@ -4,20 +4,18 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public abstract class ButtonElement extends Entity {
-	public List<TiledMapTile> onTiles;
-	public List<TiledMapTileLayer.Cell> coveredCells;
-	public List<TiledMapTile> offTiles;
+abstract class ButtonElement extends Entity {
+	List<TiledMapTile> onTiles;
+	List<TiledMapTileLayer.Cell> coveredCells;
+	List<TiledMapTile> offTiles;
 
-	public boolean isActivated;
+	boolean isActivated;
 
 	private static final int COLLISION_PRIORITY_BUTTON = 1;
 
-	public ButtonElement(Vector2 location, Vector2 size, Vector2 collisionSize) {
+	ButtonElement(Vector2 location, Vector2 size, Vector2 collisionSize) {
 		super(location, size, collisionSize);
 		collision_priority = COLLISION_PRIORITY_BUTTON;
 	}

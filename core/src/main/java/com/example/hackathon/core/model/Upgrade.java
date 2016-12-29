@@ -1,12 +1,10 @@
 package com.example.hackathon.core.model;
 
-import java.util.logging.Logger;
-
-public class Upgrade {
+class Upgrade {
 	// how much the Battery Capacity increases/decreases
-	private float batteryCapacityChange;
+	private final float batteryCapacityChange;
 	// how much Battery is consumed/produced by the Upgrade
-	private float batteryConsumptionChange;
+	private final float batteryConsumptionChange;
 
 	public Upgrade(float capacityChange, float consumptionChange)
 	{

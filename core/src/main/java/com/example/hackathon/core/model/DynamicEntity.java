@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
-import java.util.Locale;
-
 /**
  * Base class for the players robot and enemy robots
  */
@@ -15,24 +13,24 @@ public class DynamicEntity extends Entity {
 		boolean isWalkable(int x, int y);
 	}
 
-    protected Vector2 velocity = new Vector2();
-    protected Sprite sprite;
+    Vector2 velocity = new Vector2();
+    final Sprite sprite;
 
     /**
      * The normalized direction in that the robot is looking.
      */
-    protected Vector2 direction = Vector2.Y;
+	private Vector2 direction = Vector2.Y;
 
-    public DynamicEntity(Vector2 location, Vector2 size, Vector2 collisionSize, Sprite sprite) {
+    DynamicEntity(Vector2 location, Vector2 size, Vector2 collisionSize, Sprite sprite) {
         super(location, size, collisionSize);
     	this.sprite = sprite;
     }
 
-	public DynamicEntity(Vector2 location, Vector2 size, Vector2 collisionSize, Texture texture, int srcX, int srcY, int srcW, int srcH) {
+	DynamicEntity(Vector2 location, Vector2 size, Vector2 collisionSize, Texture texture, int srcX, int srcY, int srcW, int srcH) {
 		this(location, size, collisionSize, new Sprite(texture, srcX, srcY, srcW, srcH));
 	}
 
-    public Movement getDiscreteDirection() {
+    Movement getDiscreteDirection() {
         if (Math.abs(direction.x) > Math.abs(direction.y)) {
             if (direction.x < 0)
                 return Movement.Left;
@@ -45,11 +43,11 @@ public class DynamicEntity extends Entity {
         }
     }
 
-    public void setDirection(Vector2 v) {
+    void setDirection(Vector2 v) {
         direction = v;
     }
 
-    public void setVelocity(Vector2 v) {
+    void setVelocity(Vector2 v) {
 		velocity = v;
 		if (v.len2() > 0.01)
 			setDirection(v.cpy().nor());
@@ -65,7 +63,7 @@ public class DynamicEntity extends Entity {
 	/**
 	 * Collided with the environment.
 	 */
-	public void collide(World world) { }
+	void collide(World world) { }
 
 	/**
 	 * Test collision for one coordinate.

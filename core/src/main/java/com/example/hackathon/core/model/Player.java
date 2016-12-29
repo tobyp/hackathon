@@ -8,7 +8,6 @@ import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 public class Player extends DynamicEntity {
@@ -22,11 +21,11 @@ public class Player extends DynamicEntity {
 
 	private Vector2 target;
 
-	private List<Upgrade> upgrades;
+	private final List<Upgrade> upgrades;
 
 	private float soundStartTime = 0;
-	private Sound collideSound = Gdx.audio.newSound(Gdx.files.internal("sound/donk.wav"));
-	private Random rand = new Random();
+	private final Sound collideSound = Gdx.audio.newSound(Gdx.files.internal("sound/donk.wav"));
+	private final Random rand = new Random();
 
 	public Player(Vector2 location) {
 		super(location, new Vector2(2, 2), new Vector2(2, 2), new Texture("tew.png"), 0, 0, 128, 128);

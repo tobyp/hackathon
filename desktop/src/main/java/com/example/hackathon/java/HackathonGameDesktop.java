@@ -5,7 +5,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 import com.example.hackathon.core.HackathonGame;
 
-public class HackathonGameDesktop {
+class HackathonGameDesktop {
 	public static void main (String[] args) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		new LwjglApplication(new HackathonGame(), config);

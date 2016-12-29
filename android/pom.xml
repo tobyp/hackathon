@@ -16,7 +16,7 @@
 		<keystore.path>game.keystore</keystore.path>
 		<keystore.alias>game</keystore.alias>
 		<!-- you can pass these on the command line as -Dkeystore.password=foo etc. -->
-		<keystore.password></keystore.password>
+        <keystore.password/>
 		<key.password>${keystore.password}</key.password>
 	</properties>
 
@@ -127,7 +127,7 @@
 								<phase>package</phase>
 								<inherited>true</inherited>
 								<configuration>
-									<archiveDirectory></archiveDirectory>
+                                    <archiveDirectory/>
 									<includes>
 										<include>target/*.apk</include>
 									</includes>

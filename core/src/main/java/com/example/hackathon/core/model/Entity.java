@@ -4,15 +4,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-/**
- * Created by tobyp on 12/28/16.
- */
 public abstract class Entity {
-    protected int collision_priority = 0;
-    protected final Vector2 location = new Vector2();
-    protected final Vector2 size = new Vector2(1, 1);
-    protected final Vector2 collisionSize = new Vector2(1, 1);
-    protected float rotation = 0.f;
+    int collision_priority = 0;
+    final Vector2 location = new Vector2();
+    final Vector2 size = new Vector2(1, 1);
+    private final Vector2 collisionSize = new Vector2(1, 1);
+    private float rotation = 0.f;
     private boolean destroyed = false;
 
     public Entity(Vector2 location) {
@@ -25,7 +22,7 @@ public abstract class Entity {
         this.collisionSize.set(size);
     }
 
-    public Entity(Vector2 location, Vector2 size, Vector2 collisionSize) {
+    Entity(Vector2 location, Vector2 size, Vector2 collisionSize) {
         this.location.set(location);
         this.size.set(size);
         this.collisionSize.set(collisionSize);
@@ -64,7 +61,7 @@ public abstract class Entity {
     public void uncollide(World world, Entity entity) { }
     public void render(World world, SpriteBatch batch) { }
 
-    public void destroy() {
+    void destroy() {
         this.destroyed = true;
     }
 }

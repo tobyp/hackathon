@@ -12,7 +12,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 import com.example.hackathon.core.ScriptCommand;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.logging.Level;
@@ -34,8 +33,8 @@ public class World {
 
 	private float worldTime;
 
-	public static final int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
-	public static final int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
+	private static final int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
+	private static final int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
 	private List<TiledMapTile> clickButtonOnTiles;
 	private List<TiledMapTile> clickButtonOffTiles;
 
@@ -77,7 +76,7 @@ public class World {
 		return player;
 	}
 
-	public int getCellTileId(int x, int y) {
+	private int getCellTileId(int x, int y) {
 		TiledMapTileLayer.Cell cell = ((TiledMapTileLayer) map.getLayers().get("ground")).getCell(x, y);
 		if (cell == null)
 			return -1;
@@ -92,7 +91,7 @@ public class World {
 		return entities;
 	}
 
-	private Set<Entity> collision_cache = new HashSet<Entity>();
+	private final Set<Entity> collision_cache = new HashSet<>();
 
 	public void update(float deltaTime) {
 		worldTime += deltaTime;
@@ -126,7 +125,7 @@ public class World {
 		entities.add(e);
 	}
 
-	public List<TiledMapTile> getTilesByIds(int[] ids) {
+	private List<TiledMapTile> getTilesByIds(int[] ids) {
 		List<TiledMapTile> back = new ArrayList<>();
 		for (int i : ids) {
 			back.add(map.getTileSets().getTile(i));
@@ -145,7 +144,7 @@ public class World {
 		}
 	}
 
-	public void runScript(MapObject mo, String script) {
+	private void runScript(MapObject mo, String script) {
 		Logger logger = Logger.getLogger("script");
 		String[] lines = script.split(";");
 		for (String line : lines) {
@@ -210,8 +209,8 @@ public class World {
 	public void battery(MapObject mo, float capacity, float consumption) {
 		Upgrade upgrade = new Upgrade(capacity, consumption);
 		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
-		int cell_x = (int)(mo.getProperties().get("x", Float.class).floatValue() / tileSize);
-		int cell_y = (int)(mo.getProperties().get("y", Float.class).floatValue() / tileSize);
+		int cell_x = (int)(mo.getProperties().get("x", Float.class) / tileSize);
+		int cell_y = (int)(mo.getProperties().get("y", Float.class) / tileSize);
 
 		UpgradeItem ue = new UpgradeItem(new Vector2(cell_x + 0.5f, cell_y + 0.5f), batterySprite, upgrade);
 		entities.add(ue);
@@ -229,8 +228,8 @@ public class World {
 
 	@ScriptCommand
 	public void button(MapObject mo, boolean on) {
-		int cell_x = (int)(mo.getProperties().get("x", Float.class).floatValue() / tileSize);
-		int cell_y = (int)(mo.getProperties().get("y", Float.class).floatValue() / tileSize);
+		int cell_x = (int)(mo.getProperties().get("x", Float.class) / tileSize);
+		int cell_y = (int)(mo.getProperties().get("y", Float.class) / tileSize);
 
 		List<TiledMapTileLayer.Cell> cells = new ArrayList<>();
 		for (int y = cell_y + 1; y > cell_y - 1; y--) {
