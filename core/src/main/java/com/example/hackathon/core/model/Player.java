@@ -1,12 +1,16 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Player extends DynamicEntity {
 	// how much energy is still left in the battery, between 0 and batteryMax
@@ -19,6 +23,10 @@ public class Player extends DynamicEntity {
 	private Vector2 target;
 
 	private List<Upgrade> upgrades;
+
+	private float soundStartTime = 0;
+	private Sound collideSound = Gdx.audio.newSound(Gdx.files.internal("sound/donk.wav"));
+	private Random rand = new Random();
 
 	public Player() {
 		super(new Texture("tew.png"), 0, 0, 128, 128);
@@ -90,11 +98,20 @@ public class Player extends DynamicEntity {
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}
-		setVelocity(target.sub(location).scl(0.3f));
+		setVelocity(target.sub(location).scl(1f));
 	}
 
 	@Override
 	public void collide(World world, Entity entity) {
 		super.collide(world, entity);
+	}
+
+	@Override
+	public void collide(World world, Vector2 pos) {
+		super.collide(world, pos);
+		if (world.getWorldTime() - soundStartTime > rand.nextInt(15) / 10f) {
+			soundStartTime = world.getWorldTime();
+			collideSound.play();
+		}
 	}
 }
