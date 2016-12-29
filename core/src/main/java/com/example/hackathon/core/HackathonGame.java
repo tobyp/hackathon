@@ -2,6 +2,8 @@ package com.example.hackathon.core;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -14,11 +16,9 @@ import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-import com.badlogic.gdx.math.FloatCounter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import com.example.hackathon.core.model.DynamicEntity;
 import com.example.hackathon.core.model.Entity;
 import com.example.hackathon.core.model.Player;
 import com.example.hackathon.core.model.World;
@@ -29,6 +29,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	private TiledMapRenderer map_renderer;
 	private OrthographicCamera camera;
 	private BitmapFont font;
+	private Music backgroundMusic;
 
 	private World world;
 
@@ -47,6 +48,11 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		gameBatch = new SpriteBatch();
 
 		camera = new OrthographicCamera();
+
+		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sound/background.mp3"));
+		backgroundMusic.setVolume(0.07f);
+		backgroundMusic.setLooping(true);
+		backgroundMusic.play();
 
 		TmxMapLoader.Parameters params = new TmxMapLoader.Parameters();
 		params.convertObjectToTileSpace = true;
@@ -94,6 +100,15 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		}
 		gameBatch.end();
 
+		// Update music
+		if (isGameOver || isEndGame) {
+			if (backgroundMusic.isPlaying())
+				backgroundMusic.pause();
+		} else {
+			if (!backgroundMusic.isPlaying())
+				backgroundMusic.play();
+		}
+
 		batch.begin();
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		font.draw(batch, "Energy: " + (int) world.getPlayer().getBattery() + "/" + (int) world.getPlayer().getBatteryMax(), 100, 20);
@@ -129,6 +144,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 	public void dispose () {
 		world.getMap().dispose();
 		batch.dispose();
+		backgroundMusic.dispose();
 	}
 
 	@Override
