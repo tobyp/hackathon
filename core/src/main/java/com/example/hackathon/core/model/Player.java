@@ -3,21 +3,21 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.Random;
 
 public class Player extends DynamicEntity {
+	private static final float PLAYER_SPEED = 1.f;
 	// how much energy is still left in the battery, between 0 and batteryMax
 	private float battery;
 	// how much energy the battery can hold
 	private float batteryMax;
-	// how much battery is consumed per timestep
+	// how much battery is consumed per second
 	private float consumption;
 
 	private Vector2 target;
@@ -44,11 +44,14 @@ public class Player extends DynamicEntity {
 
 	// updates batteryMax and consumption (for new upgrades)
 	private void recalculateStats() {
+		float old_battery_max = getBatteryMax();
 		batteryMax = 1.f;
 		consumption = 0.0f;
 		for (Upgrade u : upgrades) {
 			u.apply(this);
 		}
+		float delta_battery_max = getBatteryMax() - old_battery_max;
+		battery = Math.min(batteryMax, battery + delta_battery_max);
 	}
 
 	public float getBattery() {
@@ -73,7 +76,7 @@ public class Player extends DynamicEntity {
 	}
 
 	public void setConsumption(float consumption) {
-		this.consumption = consumption;
+		this.consumption = Math.max(0.f, consumption);
 	}
 
 	public Vector2 getTarget() {
@@ -94,11 +97,14 @@ public class Player extends DynamicEntity {
 
 	@Override
 	public void update(World world, float deltaTime) {
-		battery -= consumption * deltaTime;
+		battery = Math.max(Math.min(batteryMax, battery + consumption * deltaTime), 0.f);
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}
-		setVelocity(target.sub(location).scl(1f));
+		// Accelerate and decelerate a bit
+		Vector2 targetVel = target.sub(location).scl(PLAYER_SPEED);
+		Vector2 diff = targetVel.sub(velocity);
+		setVelocity(velocity.add(diff.limit(0.3f)));
 	}
 
 	@Override

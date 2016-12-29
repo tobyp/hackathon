@@ -1,5 +1,7 @@
 package com.example.hackathon.core.model;
 
+import java.util.logging.Logger;
+
 public class Upgrade {
 	// how much the Battery Capacity increases/decreases
 	private float batteryCapacityChange;
@@ -9,7 +11,7 @@ public class Upgrade {
 	public Upgrade(float capacityChange, float consumptionChange)
 	{
 		batteryCapacityChange = capacityChange;
-		batteryCapacityChange = consumptionChange;
+		batteryConsumptionChange = consumptionChange;
 	}
 
 	public void apply(Player player) {

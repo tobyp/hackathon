@@ -1,5 +1,6 @@
 package com.example.hackathon.core;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -126,7 +127,10 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		return false;
+		if (keycode == Input.Keys.ESCAPE) {
+			Gdx.app.exit();
+		}
+		return true;
 	}
 
 	@Override

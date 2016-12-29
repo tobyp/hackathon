@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.logging.Logger;
+
 /**
  * Created by tobyp on 12/28/16.
  */
@@ -24,6 +26,6 @@ public class UpgradeItem extends DynamicEntity {
             ((Player)entity).addUpgrade(this.upgrade);
         }
 
-        world.removeEntity(this);
+        destroy();
     }
 }
