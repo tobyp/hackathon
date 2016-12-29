@@ -12,6 +12,7 @@ public abstract class Entity {
     protected final Vector2 collisionSize = new Vector2(1, 1);
     private float rotation = 0.f;
     protected Sprite sprite = null;
+    protected float animation_period = 0.f;
     private boolean destroyed = false;
 
     public Entity(Vector2 location) {
@@ -63,6 +64,12 @@ public abstract class Entity {
     public void uncollide(World world, Entity entity) { }
     public void render(World world, SpriteBatch batch) {
         if (sprite != null) {
+            if (animation_period > 0.f) {
+                float animation_progress = world.getWorldTime() % animation_period / animation_period;
+                int animation_frame = (int)(animation_progress * sprite.getTexture().getHeight() / sprite.getRegionHeight());
+                int y_offset = animation_frame * sprite.getRegionHeight();
+                sprite.setRegionY(y_offset);
+            }
             Vector2 p = location.cpy().mulAdd(size, -0.5f);
             sprite.setPosition(p.x, p.y);
             sprite.setSize(size.x, size.y);

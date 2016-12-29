@@ -31,6 +31,7 @@ public class Barrier extends Entity {
         this.sprite = active ? sprite_on : null;
         Logger.getAnonymousLogger().info("size: " + size.toString());
         collision_priority = 10;
+        this.animation_period = 0.16f;
     }
 
     @Override

@@ -19,7 +19,8 @@ public class Zap extends Entity {
         this.source = source;
         this.target = target;
         this.timer = 2.f;
-        sprite = new Sprite(new Texture("coil_lightning.png"), 0, 0, 96, 32);
+        this.animation_period = 0.32f;
+        sprite = new Sprite(new Texture("barrier_h.png"), 0, 0, 96, 32);
 
     }
 
@@ -29,7 +30,10 @@ public class Zap extends Entity {
         if (this.timer > 0.f) {
             location.set(source.getLocation().cpy().add(target.getLocation()).scl(0.5f));
             float distance = source.getLocation().dst(target.getLocation());
-            size.set(distance, distance / 3.f);
+            size.set(distance, 2.f);
+            sprite.setOrigin(size.x / 2, size.y / 2);
+            Vector2 relative = target.getLocation().cpy().sub(source.getLocation());
+            sprite.setRotation(relative.angle());
             getCollisionSize().set(size);
         }
         else {

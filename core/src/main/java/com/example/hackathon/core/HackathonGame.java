@@ -34,7 +34,7 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 	private Vector2 camera_pos;
 
-	private static final float TILES_PER_SCREEN_Y = 50f;
+	private static final float TILES_PER_SCREEN_Y = 15f;
 	private static final float CAMERA_MOVE_MARGIN = 0.05f;
 
 	public boolean isEndGame = false;
