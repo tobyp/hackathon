@@ -9,8 +9,9 @@ import java.util.List;
 public class ClickButton extends ButtonElement {
 
     public ClickButton(Vector2 location, boolean initState, List<TiledMapTile> onTiles,
-					   List<TiledMapTile> offTiles, List<TiledMapTileLayer.Cell> coveredCells) {
-		super(location, new Vector2(2, 2), new Vector2(1, 1));
+					   List<TiledMapTile> offTiles, List<TiledMapTileLayer.Cell> coveredCells,
+					   String scriptActivate, String scriptDeactivate) {
+		super(location, new Vector2(2, 2), new Vector2(1, 1), scriptActivate, scriptDeactivate);
 
 		this.isActivated = initState;
 		this.onTiles = onTiles;
@@ -20,7 +21,7 @@ public class ClickButton extends ButtonElement {
 
 	@Override
 	public void collide(World world, Entity entity) {
-    	isActivated = !isActivated;
-    	updateTiles();
+		super.collide(world, entity);
+		updateTiles();
 	}
 }

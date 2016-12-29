@@ -33,8 +33,12 @@ public class World {
 
 	private static final int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
 	private static final int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
+	private static final int[] COIL_ON_TILE_IDS = { 242, 243, 274, 275 };
+	private static final int[] COIL_OFF_TILE_IDS = { 240, 241, 272, 273 };
 	private List<TiledMapTile> clickButtonOnTiles;
 	private List<TiledMapTile> clickButtonOffTiles;
+	private List<TiledMapTile> coilOnTiles;
+	private List<TiledMapTile> coilOffTiles;
 
 	/**
 	 * Get the mid point of a meta map object.
@@ -42,9 +46,8 @@ public class World {
 	 * @param name The name of the object in the meta layer.
 	 * @return The mid point of the object.
 	 */
-	public Vector2 getObjectLocation(String name) {
-		MapObject obj = metaLayer.getObjects().get(name);
-		RectangleMapObject rmo = (RectangleMapObject)obj;
+	public Vector2 getObjectLocation(MapObject mo) {
+		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2();
 		rmo.getRectangle().getCenter(center);
 		return center;
@@ -58,19 +61,29 @@ public class World {
 
 		clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
+		coilOnTiles = getTilesByIds(COIL_ON_TILE_IDS);
+		coilOffTiles = getTilesByIds(COIL_OFF_TILE_IDS);
 
-		player = new Player(getObjectLocation("player-start"));
-		boss = new Boss(getObjectLocation("boss-start"));
+		MapObject player_start = metaLayer.getObjects().get("player-start");
+		player = new Player(getObjectLocation(player_start));
+		MapObject boss_start = metaLayer.getObjects().get("boss-start");
+		boss = new Boss(getObjectLocation(boss_start));
 
-		this.entities = new ArrayList<>();
+		entities = new ArrayList<>();
+		entity_names = new HashMap<>();
 		entities.add(player);
 		entities.add(boss);
+		entity_names.put("boss", boss);
 
 		for (MapObject mo : metaLayer.getObjects()) {
 			if (mo.getProperties().containsKey("on-load")) {
 				runScript(mo, mo.getProperties().get("on-load", String.class));
 			}
 		}
+	}
+
+	public Entity getEntity(String name) {
+		return entity_names.getOrDefault(name, null);
 	}
 
 	public float getWorldTime() {
@@ -140,6 +153,14 @@ public class World {
 		entities.add(e);
 	}
 
+	public void addEntity(Entity e, String name) {
+		entities.add(e);
+		if (name != null) {
+			entity_names.put(name, e);
+			Logger.getLogger("script").info("Named entity " + name + ": " + e.toString());
+		}
+	}
+
 	private List<TiledMapTile> getTilesByIds(int[] ids) {
 		List<TiledMapTile> back = new ArrayList<>();
 		for (int i : ids) {
@@ -159,7 +180,8 @@ public class World {
 		}
 	}
 
-	private void runScript(MapObject mo, String script) {
+	public void runScript(MapObject mo, String script) {
+		if (script == null || script.isEmpty()) return;
 		Logger logger = Logger.getLogger("script");
 		String[] lines = script.split(";");
 		for (String line : lines) {
@@ -235,19 +257,20 @@ public class World {
 	}
 
 	@ScriptCommand
-	public void barrierToggle(MapObject mo, String wall_name) {
-
+	public void barrierToggle(MapObject mo, String barrierName) {
+		Barrier barrier = (Barrier)getEntity(barrierName);
+		barrier.setActive(!barrier.isActive());
 	}
 
 	@ScriptCommand
 	public void barrier(MapObject mo, boolean on, float toggle_period) {
-		/*RectangleMapObject rmo = (RectangleMapObject)mo;
+		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2(), size = new Vector2();
 		rmo.getRectangle().getCenter(center);
 		rmo.getRectangle().getSize(size);
 		Barrier b = new Barrier(center, size, on, toggle_period);
-		entities.add(b);
-		Logger.getLogger("script").info("Spawned barrier at " + center);*/
+		addEntity(b, mo.getName());
+		Logger.getLogger("script").info("Spawned barrier at " + center);
 	}
 
 	@ScriptCommand
@@ -264,24 +287,51 @@ public class World {
 				cells.add(cell);
 			}
 		}
-		ButtonElement button = new ClickButton(center, on, clickButtonOnTiles, clickButtonOffTiles, cells);
+		ButtonElement button = new ClickButton(center, on, clickButtonOnTiles, clickButtonOffTiles, cells,
+				mo.getProperties().get("on-activate", String.class),
+				mo.getProperties().get("on-deactivate", String.class));
 		button.updateTiles();
-		entities.add(button);
+		addEntity(button, mo.getName());
 		Logger.getLogger("script").info("Spawned button at " + center + " state="+on);
 	}
 
 	@ScriptCommand
-	public void coil(MapObject mo, boolean on) {
+	public void coil(MapObject mo, boolean on, String victim) {
+		RectangleMapObject rmo = (RectangleMapObject)mo;
+		Vector2 center = new Vector2(), size = new Vector2();
+		rmo.getRectangle().getCenter(center);
+		rmo.getRectangle().getSize(size);
 
+		List<TiledMapTileLayer.Cell> cells = new ArrayList<>();
+		for (int y = (int)rmo.getRectangle().getY() + 1; y > (int)rmo.getRectangle().getY() - 1; y--) {
+			for (int x = (int)rmo.getRectangle().getX(); x < (int)rmo.getRectangle().getX() + 2; x++) {
+				TiledMapTileLayer.Cell cell = buttonLayer.getCell(x, y);
+				cells.add(cell);
+			}
+		}
+
+		Coil c = new Coil(center, on, victim, coilOnTiles, coilOffTiles, cells, null, null);
+		addEntity(c, mo.getName());
+		Logger.getLogger("script").info("Spawned coil at " + center);
 	}
 
 	@ScriptCommand
-	public void coilOn(MapObject mo, boolean on) {
-
+	public void coilOn(MapObject mo, String coilName) {
+		Coil coil = (Coil)getEntity(coilName);
+		coil.setActive(true);
 	}
 
 	@ScriptCommand
-	public void mob(MapObject mo) {
+	public void trigger(MapObject mo, boolean on) {
+		RectangleMapObject rmo = (RectangleMapObject)mo;
+		Vector2 center = new Vector2(), size = new Vector2();
+		rmo.getRectangle().getCenter(center);
+		rmo.getRectangle().getSize(size);
 
+		Trigger trigger = new Trigger(center, size,
+				mo.getProperties().get("on-enter", String.class),
+				mo.getProperties().get("on-exit", String.class));
+		addEntity(trigger, mo.getName());
+		Logger.getLogger("script").info("Spawned trigger at " + center + " state="+on);
 	}
 }
