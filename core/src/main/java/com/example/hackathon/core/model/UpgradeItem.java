@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class UpgradeItem extends DynamicEntity {
     private static final int COLLISION_PRIORITY_ITEM = 1;
-    private static final float ITEM_BOUNCE_AMPLITURE = 2.f;
-    private static final float ITEM_BOUNCE_PERIOD = 1.f;
+    private static final float ITEM_BOUNCE_AMPLITURE = 0.1f;
+    private static final float ITEM_BOUNCE_PERIOD = 0.1f;
 
     private final Upgrade upgrade;
 
@@ -29,6 +29,7 @@ public class UpgradeItem extends DynamicEntity {
     @Override
     public void render(World world, SpriteBatch batch) {
         float bounce = (float)Math.sin(world.getWorldTime() / (2.f * Math.PI * ITEM_BOUNCE_PERIOD));
+        bounce = bounce * bounce * ITEM_BOUNCE_AMPLITURE;
         getLocation().add(0, bounce);
         super.render(world, batch);
         getLocation().sub(0, bounce);

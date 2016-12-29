@@ -222,14 +222,16 @@ public class World {
 
 	@ScriptCommand
 	public void battery(MapObject mo, float capacity, float consumption) {
+		RectangleMapObject rmo = (RectangleMapObject)mo;
+		Vector2 center = new Vector2();
+		rmo.getRectangle().getCenter(center);
+
 		Upgrade upgrade = new Upgrade(capacity, consumption);
 		Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
-		int cell_x = (int)(mo.getProperties().get("x", Float.class).floatValue());
-		int cell_y = (int)(mo.getProperties().get("y", Float.class).floatValue());
 
-		UpgradeItem ue = new UpgradeItem(new Vector2(cell_x + 0.5f, cell_y + 0.5f), batterySprite, upgrade);
+		UpgradeItem ue = new UpgradeItem(center, batterySprite, upgrade);
 		entities.add(ue);
-		Logger.getLogger("script").info("Spawned Battery at (" + cell_x + ", " + cell_y + ") cap=" + capacity + ", drain=" + consumption);
+		Logger.getLogger("script").info("Spawned Battery at " + center + " cap=" + capacity + ", drain=" + consumption);
 	}
 
 	@ScriptCommand
