@@ -3,8 +3,6 @@ package com.example.hackathon.core.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.example.hackathon.core.HackathonGame;
 
@@ -103,7 +101,10 @@ public class Player extends DynamicEntity {
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}
-		setVelocity(target.sub(location).scl(PLAYER_SPEED));
+		// Accelerate and decelerate a bit
+		Vector2 targetVel = target.sub(location).scl(PLAYER_SPEED);
+		Vector2 diff = targetVel.sub(velocity);
+		setVelocity(velocity.add(diff.limit(0.3f)));
 	}
 
 	@Override
