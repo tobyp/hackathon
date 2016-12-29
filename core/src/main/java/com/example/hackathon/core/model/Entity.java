@@ -1,5 +1,6 @@
 package com.example.hackathon.core.model;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -10,6 +11,7 @@ public abstract class Entity {
     final Vector2 size = new Vector2(1, 1);
     private final Vector2 collisionSize = new Vector2(1, 1);
     private float rotation = 0.f;
+    protected Sprite sprite = null;
     private boolean destroyed = false;
 
     public Entity(Vector2 location) {
@@ -59,7 +61,14 @@ public abstract class Entity {
     public void update(World world, float deltaTime) { }
     public void collide(World world, Entity entity) { }
     public void uncollide(World world, Entity entity) { }
-    public void render(World world, SpriteBatch batch) { }
+    public void render(World world, SpriteBatch batch) {
+        if (sprite != null) {
+            Vector2 p = location.cpy().mulAdd(size, -0.5f);
+            sprite.setPosition(p.x, p.y);
+            sprite.setSize(size.x, size.y);
+            sprite.draw(batch);
+        }
+    }
 
     void destroy() {
         this.destroyed = true;

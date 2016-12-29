@@ -255,12 +255,7 @@
 </data>
  </layer>
  <objectgroup name="meta">
-  <object id="1" name="player-start" type="meta" x="95" y="805" width="32" height="32">
-   <properties>
-    <property name="height" type="float" value="2"/>
-    <property name="width" type="float" value="2"/>
-   </properties>
-  </object>
+  <object id="1" name="player-start" type="meta" x="96" y="800" width="32" height="32"/>
   <object id="2" name="battery" x="861" y="159" width="32" height="32">
    <properties>
     <property name="on-load" value="battery 10.0 -1.0"/>
@@ -351,12 +346,7 @@
     <property name="on-load" value="coil off"/>
    </properties>
   </object>
-  <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192">
-   <properties>
-    <property name="height" type="float" value="6"/>
-    <property name="width" type="float" value="6"/>
-   </properties>
-  </object>
+  <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192"/>
  </objectgroup>
  <layer name="walk" width="50" height="50" visible="0" opacity="0.65">
   <data encoding="csv">

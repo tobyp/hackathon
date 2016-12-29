@@ -47,8 +47,10 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 
 		camera = new OrthographicCamera();
 
+		TmxMapLoader.Parameters params = new TmxMapLoader.Parameters();
+		params.convertObjectToTileSpace = true;
 		TmxMapLoader loader = new TmxMapLoader();
-		TiledMap map = loader.load("test.tmx");
+		TiledMap map = loader.load("test.tmx", params);
 
 		world = new World(map);
 		camera.translate(world.getPlayer().getLocation());
@@ -84,14 +86,10 @@ public class HackathonGame implements ApplicationListener, InputProcessor {
 		map_renderer.setView(camera);
 		map_renderer.render();
 
-
 		// Render entities
 		gameBatch.begin();
 		for (Entity e : world.getEntities()) {
-			if (e instanceof DynamicEntity) {
-				DynamicEntity de = (DynamicEntity) e;
-				de.render(gameBatch);
-			}
+			e.render(world, gameBatch);
 		}
 		gameBatch.end();
 

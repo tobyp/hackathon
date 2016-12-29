@@ -9,12 +9,11 @@ import com.badlogic.gdx.math.Vector2;
  * Base class for the players robot and enemy robots
  */
 public class DynamicEntity extends Entity {
+	protected Vector2 velocity = new Vector2();
+
 	private interface WalkableTester {
 		boolean isWalkable(int x, int y);
 	}
-
-    Vector2 velocity = new Vector2();
-    final Sprite sprite;
 
     /**
      * The normalized direction in that the robot is looking.
@@ -97,13 +96,13 @@ public class DynamicEntity extends Entity {
 					// Add step if it is -1, otherwise do nothing (because the wall tile ends at i + 1)
 					float newDistance = i - (step - 1) / 2 - prevMid.x;
 					// Can't touch it…
-					if (step == 1) {
+					/*if (step == 1) {
 						if (newDistance < 0 || distance < newDistance)
 							throw new UnsupportedOperationException("Something went wrong");
 					} else {
 						if (newDistance > 0 || distance > newDistance)
 							throw new UnsupportedOperationException("Something went wrong");
-					}
+					}*/
 					return newDistance;
 				}
 			}
@@ -139,12 +138,5 @@ public class DynamicEntity extends Entity {
 
 		if (collided)
 			collide(world);
-	}
-
-	public void render(SpriteBatch batch) {
-		Vector2 p = size.cpy().scl(-0.5f).add(location);
-		sprite.setPosition(p.x, p.y);
-		sprite.setSize(size.x, size.y);
-		sprite.draw(batch);
 	}
 }
