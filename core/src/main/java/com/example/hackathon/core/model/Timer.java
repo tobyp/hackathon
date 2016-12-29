@@ -2,6 +2,8 @@ package com.example.hackathon.core.model;
 
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.logging.Logger;
+
 /**
  * Created by tobyp on 12/29/16.
  */
@@ -29,6 +31,7 @@ public class Timer extends Entity {
         if (this.time > 0.f) {
             this.time = Math.max(0, time - deltaTime);
             if (this.time <= 0.f) {
+                Logger.getLogger("timer").info("Triggered timer script " + onZero);
                 world.runScript(null, onZero);
                 this.time = -1.f;
             }

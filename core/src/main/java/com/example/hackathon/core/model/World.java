@@ -176,6 +176,7 @@ public class World {
 
 			UpgradeItem ue = new UpgradeItem(new Vector2(w.x + 0.5f, w.y + 0.5f), batterySprite, upgrade);
 			addEntity(ue);
+			//Logger.getLogger("script").info("Spawned Battery at (" + w.x + ", " + w.y + ") cap=" + 10 + ", drain=" + 0.1f);
 		}
 	}
 
@@ -283,13 +284,14 @@ public class World {
 
 		UpgradeItem ue = new UpgradeItem(center, batterySprite, upgrade);
 		addEntity(ue);
-		Logger.getLogger("script").info("Spawned Battery at " + center + " cap=" + capacity + ", drain=" + consumption);
+		//Logger.getLogger("script").info("Spawned Battery at " + center + " cap=" + capacity + ", drain=" + consumption);
 	}
 
 	@ScriptCommand
 	public void barrierToggle(MapObject mo, String barrierName) {
 		Barrier barrier = (Barrier)getEntity(barrierName);
 		barrier.setActive(!barrier.isActive());
+		Logger.getLogger("script").info("toggled barrier " + barrierName);
 	}
 
 	@ScriptCommand
@@ -297,7 +299,8 @@ public class World {
 		RectangleMapObject rmo = (RectangleMapObject)mo;
 		Vector2 center = new Vector2(), size = new Vector2();
 		rmo.getRectangle().getCenter(center);
-		rmo.getRectangle().getSize(size);
+		size.x = rmo.getRectangle().getWidth();
+		size.y = rmo.getRectangle().getHeight();
 		Barrier b = new Barrier(center, size, on, toggle_period);
 		addEntity(b, mo.getName());
 		Logger.getLogger("script").info("Spawned barrier at " + center);
@@ -349,12 +352,14 @@ public class World {
 	public void coilOn(MapObject mo, String coilName) {
 		Coil coil = (Coil)getEntity(coilName);
 		coil.setActive(this, true);
+		Logger.getLogger("script").info("turn on coil " + coilName);
 	}
 
 	@ScriptCommand
 	public void coilOff(MapObject mo, String coilName) {
 		Coil coil = (Coil)getEntity(coilName);
 		coil.setActive(this, false);
+		Logger.getLogger("script").info("turn off coil " + coilName);
 	}
 
 	@ScriptCommand
@@ -375,6 +380,7 @@ public class World {
 	public void counter(MapObject mo, int init_count) {
 		Counter c = new Counter(init_count, mo.getProperties().get("on-zero", String.class));
 		addEntity(c, mo.getName());
+		Logger.getLogger("script").info("spawned counter");
 	}
 
 	@ScriptCommand
@@ -395,24 +401,31 @@ public class World {
 		Entity e_target = entity_names.get(target);
 		Zap zap = new Zap(e_source, e_target);
 		addEntity(zap);
+		Logger.getLogger("script").info("Spawned Zap");
 	}
 
 	@ScriptCommand
 	public void timer(MapObject mo, float init_time) {
 		Timer c = new Timer(init_time, mo.getProperties().get("on-zero", String.class));
 		addEntity(c, mo.getName());
+		Logger.getLogger("script").info("Spawned Timer");
 	}
 
 	@ScriptCommand
 	public void timerSet(MapObject mo, String name, float time) {
 		Timer c = (Timer)entity_names.get(name);
 		c.setTime(time);
+		Logger.getLogger("script").info("Set timer " + name + " to " + time);
 	}
 
 	@ScriptCommand
 	public void kill(MapObject mo, String who) {
 		Entity b = (Entity) entity_names.get(who);
 		b.destroy();
+		if (b instanceof Boss) {
+			((Boss) b).setIsDead(true);
+		}
+		Logger.getLogger("script").info("Destroyed " + who);
 	}
 	
 	@ScriptCommand
@@ -420,6 +433,9 @@ public class World {
 		if (boss.getIsDead()) {
 			Logger.getLogger("script").info("The player has won");
 			game.isEndGame = true;
+		}
+		else {
+			Logger.getLogger("script").info("You need to kill the boss first, how did you even get here?");
 		}
 	}
 }

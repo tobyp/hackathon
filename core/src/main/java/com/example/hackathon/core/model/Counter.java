@@ -22,6 +22,7 @@ public class Counter extends Entity {
             this.count--;
             Logger.getLogger("counter").info("Counter is at " + count);
             if (this.count == 0) {
+                Logger.getLogger("counter").info("triggered script " + onZero);
                 world.runScript(null, onZero);
             }
         }
