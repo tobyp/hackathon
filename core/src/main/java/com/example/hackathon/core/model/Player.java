@@ -8,7 +8,6 @@ import com.example.hackathon.core.HackathonGame;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.Random;
 
 public class Player extends DynamicEntity {
@@ -97,6 +96,7 @@ public class Player extends DynamicEntity {
 
 	@Override
 	public void update(World world, float deltaTime) {
+		super.update(world, deltaTime);
 		battery = Math.max(Math.min(batteryMax, battery + consumption * deltaTime), 0.f);
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
