@@ -146,8 +146,31 @@ public class World {
 			HackathonGame.isGameOver = true;
 		}
 		entities.removeIf(Entity::isDestroyed);
+
+		spawnRandomBattery(deltaTime);
 	}
 
+	public void spawnRandomBattery(float deltaTime) {
+		int width = ((TiledMapTileLayer)map.getLayers().get("walk")).getWidth();
+		int height = ((TiledMapTileLayer)map.getLayers().get("walk")).getHeight();
+		List<Vector2> walkables = new ArrayList<>();
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if (isWalkable(x, y)) {
+					walkables.add(new Vector2(x, y));
+				}
+			}
+		}
+		if (Math.random() < 0.02) {
+			Vector2 w = walkables.get((int) (Math.random()*walkables.size()));
+			Upgrade upgrade = new Upgrade(10, 0.1f);
+			Sprite batterySprite = new Sprite(new Texture("items/battery.png"), 32, 32);
+
+			UpgradeItem ue = new UpgradeItem(new Vector2(w.x + 0.5f, w.y + 0.5f), batterySprite, upgrade);
+			entities.add(ue);
+			Logger.getLogger("script").info("Spawned Battery at (" + w.x + ", " + w.y + ") cap=" + 10 + ", drain=" + 0.1f);
+		}
+	}
 
 	public void addEntity(Entity e) {
 		entities.add(e);

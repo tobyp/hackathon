@@ -32,9 +32,9 @@ public class Player extends DynamicEntity {
 	public Player(Vector2 location) {
 		super(location, new Vector2(2, 2), new Vector2(2, 2),
 			new Texture("tew.png"), 0, 0, 128, 128);
-		batteryMax = 1.f;
+		batteryMax = 30.f;
 		battery = batteryMax;
-		consumption = 0.0f;
+		consumption = 1.0f;
 		upgrades = new ArrayList<>();
 	}
 
@@ -46,13 +46,17 @@ public class Player extends DynamicEntity {
 	// updates batteryMax and consumption (for new upgrades)
 	private void recalculateStats() {
 		float old_battery_max = getBatteryMax();
-		batteryMax = 1.f;
-		consumption = 0.0f;
+		float old_battery = getBattery();
+		batteryMax = 30.f;
+		consumption = 1.0f;
+		//Logger.getAnonymousLogger().info("!!!!!!!!!!!!!!");
 		for (Upgrade u : upgrades) {
 			u.apply(this);
+			//Logger.getAnonymousLogger().info("Upgrade applied: " + u.toString());
 		}
 		float delta_battery_max = getBatteryMax() - old_battery_max;
-		battery = Math.min(batteryMax, battery + delta_battery_max);
+		battery = Math.min(batteryMax, old_battery + delta_battery_max);
+		//Logger.getAnonymousLogger().info(Float.toString(battery));
 	}
 
 	public float getBattery() {
@@ -99,7 +103,7 @@ public class Player extends DynamicEntity {
 	@Override
 	public void update(World world, float deltaTime) {
 		super.update(world, deltaTime);
-		battery = Math.max(Math.min(batteryMax, battery + consumption * deltaTime), 0.f);
+		battery = Math.max(Math.min(batteryMax, battery - consumption * deltaTime), 0.f);
 		if (battery <= 0.f) {
 			HackathonGame.isGameOver = true;
 		}

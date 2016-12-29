@@ -263,7 +263,7 @@
   </object>
   <object id="4" name="barrier1" x="864" y="960" width="32" height="96" rotation="90">
    <properties>
-    <property name="on-load" value="barrier on 1"/>
+    <property name="on-load" value="barrier on 0.5"/>
    </properties>
   </object>
   <object id="5" name="button1" x="768" y="1280" width="64" height="64">
@@ -287,7 +287,7 @@
   </object>
   <object id="8" name="barrier3" x="416" y="192" width="32" height="96">
    <properties>
-    <property name="on-load" value="barrier on 10"/>
+    <property name="on-load" value="barrier on 2"/>
    </properties>
   </object>
   <object id="9" name="buttonT1" x="320" y="768" width="64" height="64">
@@ -301,7 +301,7 @@
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="11" name="buttonT2" x="544" y="224" width="64" height="64">
@@ -329,21 +329,21 @@
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value=" coil off boss"/>
    </properties>
   </object>
   <object id="15" name="coilT2" x="544" y="448" width="64" height="64">
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="16" name="coilT3" x="864" y="768" width="64" height="64">
    <properties>
     <property name="on-activate" value="barrierToggle barrier1"/>
     <property name="on-deactivate" value="barrierToggle barrier1"/>
-    <property name="on-load" value="coil off"/>
+    <property name="on-load" value="coil off boss"/>
    </properties>
   </object>
   <object id="17" name="boss-start" type="meta" x="640" y="544" width="192" height="192"/>
