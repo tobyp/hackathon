@@ -37,7 +37,7 @@ public class World {
 	int[] CLICK_BUTTON_ON_TILE_IDS = { 228, 229, 260, 261 };
 	int[] CLICK_BUTTON_OFF_TILE_IDS = { 226, 227, 258, 259 };
 
-	private boolean isWalkable(int x, int y) {
+	public boolean isWalkable(int x, int y) {
 		return walkLayer.getCell(x, y).getTile().getId() != 1;
 	}
 
@@ -56,8 +56,8 @@ public class World {
 		for (MapObject mo : metaLayer.getObjects()) {
 			if (mo.getProperties().containsKey("on-load")) {
 				int x = -1, y = -1;
-				if (mo.getProperties().containsKey("x")) x = (int)(mo.getProperties().get("x", Float.class).floatValue() / 32.f);
-				if (mo.getProperties().containsKey("y")) y = (int)(mo.getProperties().get("y", Float.class).floatValue() / 32.f);
+				if (mo.getProperties().containsKey("x")) x = (int)(mo.getProperties().get("x", Float.class) / 32.f);
+				if (mo.getProperties().containsKey("y")) y = (int)(mo.getProperties().get("y", Float.class) / 32.f);
 				runScript(x, y, mo.getProperties().get("on-load", String.class));
 			}
 		}
@@ -89,72 +89,7 @@ public class World {
 
 	public void update(float deltaTime) {
 		worldTime += deltaTime;
-		for (Entity e_ : entities) {
-			if (e_ instanceof DynamicEntity) {
-				DynamicEntity e = (DynamicEntity)e_;
-				Vector2 collidedWith = null;
-
-				// Compute the movement for all entities
-				Vector2 diff = e.getVelocity().cpy().scl(deltaTime);
-				// Test for collisions in the newly occupied cells
-				// X coordinate
-				if (diff.x != 0) {
-					// The step to go from cur to next
-					int step = (int) Math.copySign(1, diff.x);
-					// The current tile coordinate
-					int cur =  (int) (e.getLocation().x + step * e.getSize().x / 2);
-					// The next coordinate
-					int next =  (int) (e.getLocation().x + step * e.getSize().x / 2 + diff.x);
-					outer:
-					for (int i = cur; i != next + step; i += step) {
-						// Test if this x coordinate overlaps somewhere in the height of the robot
-						int maxJ = (int) Math.ceil(e.getLocation().y + e.getSize().y / 2);
-						for (int j = (int) (e.getLocation().y - e.getSize().y / 2); j < maxJ; j++) {
-							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(i, j).getTile().getId() + " position: " + i + ", " + j);
-							if (!isWalkable(i, j)) {
-								collidedWith = new Vector2(i, j);
-								// Set the coordinate to the border one step backwards
-								// because we have a collision.
-								diff.x = i - (step - 1) / 2 - e.getLocation().x - step * e.getSize().x / 2;
-								//Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
-								break outer;
-							}
-						}
-					}
-					e.getLocation().x += diff.x;
-				}
-
-				// Y coordinate
-				if (diff.y != 0) {
-					// The step to go from cur to next
-					int step = (int) Math.copySign(1, diff.y);
-					// The current tile coordinate
-					int cur =  (int) (e.getLocation().y + step * e.getSize().y / 2);
-					// The next coordinate
-					int next =  (int) (e.getLocation().y + step * e.getSize().y / 2 + diff.y);
-					outer:
-					for (int i = cur; i != next + step; i += step) {
-						// Test if this x coordinate overlaps somewhere in the height of the robot
-						int maxJ = (int) Math.ceil(e.getLocation().x + e.getSize().x / 2);
-						for (int j = (int) (e.getLocation().x - e.getSize().x / 2); j < maxJ; j++) {
-							//Logger.getAnonymousLogger().info("id: " + walk_layer.getCell(j, i).getTile().getId() + " position: " + i + ", " + j);
-							if (!isWalkable(j, i)) {
-								collidedWith = new Vector2(j, i);
-								// Set the coordinate to the border one step backwards
-								// because we have a collision.
-								diff.y = i - (step - 1) / 2 - (e.getLocation().y + step * e.getSize().y / 2);
-								//Logger.getAnonymousLogger().info(/*"diff x changed: " + diff.x + */" position: " + i + ", " + j);
-								break outer;
-							}
-						}
-					}
-					e.getLocation().y += diff.y;
-				}
-				if (collidedWith != null)
-					e.collide(this, collidedWith);
-			}
-			e_.update(this, deltaTime);
-		}
+		entities.forEach(e -> e.update(this, deltaTime));
 
 
 		entities.stream().filter(
@@ -171,7 +106,7 @@ public class World {
 		if (player.isDestroyed()) {
 			HackathonGame.isGameOver = true;
 		}
-		entities.removeIf((Entity e) -> e.isDestroyed());
+		entities.removeIf(Entity::isDestroyed);
 
 		entities.stream().filter(ie -> ie instanceof ButtonElement).map(c -> (ButtonElement) c).forEach(ButtonElement::updateTiles);
 	}
