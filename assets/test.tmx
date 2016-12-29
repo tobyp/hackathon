@@ -263,7 +263,7 @@
   </object>
   <object id="4" name="barrier1" x="768" y="960" width="96" height="32">
    <properties>
-    <property name="on-load" value="barrier on 0.5"/>
+    <property name="on-load" value="barrier on -1.0"/>
    </properties>
   </object>
   <object id="5" name="button1" x="768" y="1280" width="64" height="64">
@@ -350,7 +350,7 @@
   <object id="19" name="counter" x="416" y="448" width="32" height="32">
    <properties>
     <property name="on-load" value="counter 4"/>
-    <property name="on-zero" value="zap coilT1 boss;zap coilT2 boss;zap coilT3 boss;zap coilT4 boss;timerSet timer 2.0"/>
+    <property name="on-zero" value="zap coilT1 boss;zap coilT2 boss;zap coilT3 boss;zap coilT4 boss;timerSet timer 2.0;teleport 25 22"/>
    </properties>
   </object>
   <object id="20" name="endTrigger" x="672" y="32" width="224" height="32">
