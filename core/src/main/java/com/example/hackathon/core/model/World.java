@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -35,31 +36,20 @@ public class World {
 	private List<TiledMapTile> clickButtonOnTiles;
 	private List<TiledMapTile> clickButtonOffTiles;
 
-	/**
-	 * Get the mid point of a meta map object.
-	 *
-	 * @param name The name of the object in the meta layer.
-	 * @return The mid point of the object.
-	 */
-	public Vector2 getObjectLocation(String name) {
-		MapObject obj = metaLayer.getObjects().get(name);
-		float x = obj.getProperties().get("x", Float.class) / tileSize + Float.parseFloat(obj.getProperties().get("width", String.class)) / 2;
-		float y = obj.getProperties().get("y", Float.class) / tileSize + Float.parseFloat(obj.getProperties().get("height", String.class)) / 2;
-		return new Vector2(x, y);
-	}
-
 	public World(TiledMap map) {
 		this.map = map;
 		metaLayer = map.getLayers().get("meta");
 		walkLayer = (TiledMapTileLayer)map.getLayers().get("walk");
 		buttonLayer = (TiledMapTileLayer)map.getLayers().get("buttons");
-		tileSize=  walkLayer.getTileWidth();
+		tileSize =  walkLayer.getTileWidth();
 
 		clickButtonOnTiles = getTilesByIds(CLICK_BUTTON_ON_TILE_IDS);
 		clickButtonOffTiles = getTilesByIds(CLICK_BUTTON_OFF_TILE_IDS);
 
-		player = new Player(getObjectLocation("player-start"));
-		boss = new Boss(getObjectLocation("boss-start"));
+		RectangleMapObject playerObj = (RectangleMapObject) metaLayer.getObjects().get("player-start");
+		player = new Player(playerObj.getRectangle().getCenter(new Vector2()).scl(1 / tileSize));
+		RectangleMapObject bossObj = (RectangleMapObject) metaLayer.getObjects().get("boss-start");
+		boss = new Boss(bossObj.getRectangle().getCenter(new Vector2()).scl(1 / tileSize));
 
 		this.entities = new ArrayList<>();
 		entities.add(player);
